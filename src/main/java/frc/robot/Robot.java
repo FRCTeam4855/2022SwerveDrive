@@ -20,6 +20,10 @@ import edu.wpi.first.wpilibj.XboxController;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -28,6 +32,9 @@ import edu.wpi.first.wpilibj.SPI;
  * project. E
  */ 
 public class Robot extends TimedRobot { 
+  static Limelight limelight = new Limelight();
+
+
   double theta_radians; //theta_radians is difference the angle the robot is at, and the zerod angle
 
   boolean driverOriented = false;
@@ -41,6 +48,9 @@ public class Robot extends TimedRobot {
 
   //TODO Makes this an xbox controller
   Joystick joystick = new Joystick(0); //defines the controller 
+
+  
+  
 
   double startTime = -1;
   double elapsedTime = 0;
@@ -58,7 +68,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    
+
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto); //chooses the first auto program
     m_chooser.addOption("My Auto", kCustomAuto); //chooses the second auto program
     SmartDashboard.putData("Auto choices", m_chooser); //this does something
@@ -161,6 +171,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
+
+    SmartDashboard.putNumber("limelightX", limelight.getTargetX());
+    SmartDashboard.putNumber("limelightY", limelight.getTargetY());
+
     double x1 = joystick.getRawAxis(0); //grabs the x-axis value of the left joystick
     double x2 = joystick.getRawAxis(4); //grabs the x-axis value of the right joystick
     double y1 = joystick.getRawAxis(1); //grabs the y-axis value of the left joystick
