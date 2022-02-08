@@ -5,8 +5,8 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class Limelight {
-    NetworkTable limelightTable = NetworkTableInstance.getDefault().getTable("limelight");							// creates the limelight table
-	NetworkTableEntry x = limelightTable.getEntry("tx");															// the x offset from the crosshairs
+    NetworkTable limelightTable = NetworkTableInstance.getDefault().getTable("limelight");	// creates the limelight table
+	NetworkTableEntry x = limelightTable.getEntry("tx");									// the x offset from the crosshairs
 	NetworkTableEntry y = limelightTable.getEntry("ty");
 
   /**

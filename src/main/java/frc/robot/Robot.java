@@ -49,9 +49,6 @@ public class Robot extends TimedRobot {
   //TODO Makes this an xbox controller
   Joystick joystick = new Joystick(0); //defines the controller 
 
-  
-  
-
   double startTime = -1;
   double elapsedTime = 0;
 
@@ -108,12 +105,6 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
-    
-    /*double x1 = 0;
-    double x2 = 0;
-    double y1 = 0;
-    theta_radians = 0;
-    SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians);*/
 
   }
 
@@ -142,7 +133,7 @@ public class Robot extends TimedRobot {
         double x2 = 0;
         double y1 = 0;
         //go forward
-        if(elapsedTime >= 0.00 && elapsedTime <= 5.00) {
+        /*if(elapsedTime >= 0.00 && elapsedTime <= 5.00) {
           y1 = -0.5;
         }
         //spin around 180
@@ -154,8 +145,14 @@ public class Robot extends TimedRobot {
         if(elapsedTime >= 8.26 && elapsedTime <= 13.26) {
           x2 = 0;
           y1 = -0.48;
-        }
+        }*/
        
+        if(limelight.getTargetY() > -19 && limelight.getTargetY() < 24) {
+          y1 = .25; 
+        } else y1 = 0; 
+        
+      
+        
 
         SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians);
          wheelFL.set(swerve.wheelAngles[0], swerve.wheelSpeeds[0]); //grabs information from the arrays and feeds it to the wheels 
@@ -181,8 +178,9 @@ public class Robot extends TimedRobot {
 
    //double theta_radians = gyro.getYaw()* Math.PI / 180;; //theta_radians is difference the angle the robot is at, and the zerod angle
     if (driverOriented) {
-      theta_radians = gyro.getYaw()* Math.PI / 180;
+      theta_radians = gyro.getYaw() * Math.PI / 180;
     }else theta_radians = 0;
+
     SmartDashboard.putNumber("Gyro Get Raw", gyro.getYaw());
     SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians); //puts it all together?
     
