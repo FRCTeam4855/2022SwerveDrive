@@ -24,6 +24,8 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -32,6 +34,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
  * project. E
  */ 
 public class Robot extends TimedRobot { 
+  
   static Limelight limelight = new Limelight();
 
 
@@ -68,7 +71,8 @@ public class Robot extends TimedRobot {
 
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto); //chooses the first auto program
     m_chooser.addOption("My Auto", kCustomAuto); //chooses the second auto program
-    SmartDashboard.putData("Auto choices", m_chooser); //this does something
+    SmartDashboard.putData(m_chooser); 
+
 
   }
 
@@ -100,9 +104,21 @@ public class Robot extends TimedRobot {
    * the switch structure below with additional strings. If using the
    * SendableChooser make sure to add them to the chooser code above as well.
    */
+  /*public void getAutonomousCommand() {
+    return m_chooser.getSelected();
+  }*/
+
   @Override
   public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
+   /*public Command robot.getAutonomousCommand() {
+      return m_chooser.getSelected();
+   }
+    m_autonomousCommand = getAutonomousCommand();
+
+    // schedule the autonomous command (example)
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.schedule();
+    }*/
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
 
@@ -113,10 +129,29 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
+    double elapsedTime = (System.nanoTime() - startTime) / 1000000000;
+      SmartDashboard.putNumber("Elapsed Time right here", elapsedTime);
+
+      double x1 = 0;
+      double x2 = 0;
+      double y1 = 0;
+
+      /*SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians);
+        wheelFL.set(swerve.wheelAngles[0], swerve.wheelSpeeds[0]); //grabs information from the arrays and feeds it to the wheels 
+        wheelFR.set(swerve.wheelAngles[1], swerve.wheelSpeeds[1]); //grabs information from the arrays and feeds it to the wheels 
+        wheelBR.set(swerve.wheelAngles[2], swerve.wheelSpeeds[2]); //grabs information from the arrays and feeds it to the wheels 
+        wheelBL.set(swerve.wheelAngles[3], swerve.wheelSpeeds[3]);*/
+
     switch (m_autoSelected) {
+      
       case kCustomAuto:
-        // Put custom auto code here
-        
+      if(elapsedTime >= 0.00 && elapsedTime <= 5.00) {
+        y1 = 0.5;
+      }
+      /*if(limelight.getTargetY() > 22 && limelight.getTargetY() < 23) {
+        y1 = 0; 
+      } else y1 = .25;*/
+      
         break;
       case kDefaultAuto:
       default:
@@ -126,14 +161,8 @@ public class Robot extends TimedRobot {
           startTime = System.nanoTime();
         }
 
-        double elapsedTime = (System.nanoTime() - startTime) / 1000000000;
-        SmartDashboard.putNumber("Elapsed Time right here", elapsedTime);
-
-        double x1 = 0;
-        double x2 = 0;
-        double y1 = 0;
         //go forward
-        /*if(elapsedTime >= 0.00 && elapsedTime <= 5.00) {
+        if(elapsedTime >= 0.00 && elapsedTime <= 5.00) {
           y1 = -0.5;
         }
         //spin around 180
@@ -145,17 +174,10 @@ public class Robot extends TimedRobot {
         if(elapsedTime >= 8.26 && elapsedTime <= 13.26) {
           x2 = 0;
           y1 = -0.48;
-        }*/
-       
-        if(limelight.getTargetY() > -19 && limelight.getTargetY() < 24) {
-          y1 = .25; 
-        } else y1 = 0; 
-        
-      
-        
+        }
 
         SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians);
-         wheelFL.set(swerve.wheelAngles[0], swerve.wheelSpeeds[0]); //grabs information from the arrays and feeds it to the wheels 
+        wheelFL.set(swerve.wheelAngles[0], swerve.wheelSpeeds[0]); //grabs information from the arrays and feeds it to the wheels 
         wheelFR.set(swerve.wheelAngles[1], swerve.wheelSpeeds[1]); //grabs information from the arrays and feeds it to the wheels 
         wheelBR.set(swerve.wheelAngles[2], swerve.wheelSpeeds[2]); //grabs information from the arrays and feeds it to the wheels 
         wheelBL.set(swerve.wheelAngles[3], swerve.wheelSpeeds[3]); //grabs information from the arrays and feeds it to the wheels 
