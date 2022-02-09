@@ -104,9 +104,6 @@ public class Robot extends TimedRobot {
    * the switch structure below with additional strings. If using the
    * SendableChooser make sure to add them to the chooser code above as well.
    */
-  /*public void getAutonomousCommand() {
-    return m_chooser.getSelected();
-  }*/
 
   @Override
   public void autonomousInit() {
@@ -119,7 +116,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }*/
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
 
   }
@@ -130,23 +127,22 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     double elapsedTime = (System.nanoTime() - startTime) / 1000000000;
-      SmartDashboard.putNumber("Elapsed Time right here", elapsedTime);
+    SmartDashboard.putNumber("Elapsed Time right here", elapsedTime);
+     
 
       double x1 = 0;
       double x2 = 0;
       double y1 = 0;
 
-      /*SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians);
-        wheelFL.set(swerve.wheelAngles[0], swerve.wheelSpeeds[0]); //grabs information from the arrays and feeds it to the wheels 
-        wheelFR.set(swerve.wheelAngles[1], swerve.wheelSpeeds[1]); //grabs information from the arrays and feeds it to the wheels 
-        wheelBR.set(swerve.wheelAngles[2], swerve.wheelSpeeds[2]); //grabs information from the arrays and feeds it to the wheels 
-        wheelBL.set(swerve.wheelAngles[3], swerve.wheelSpeeds[3]);*/
-
     switch (m_autoSelected) {
-      
       case kCustomAuto:
-      if(elapsedTime >= 0.00 && elapsedTime <= 5.00) {
-        y1 = 0.5;
+      
+      if (startTime == -1) {
+        startTime = System.nanoTime();
+      }
+
+      if(elapsedTime >= 0.00 && elapsedTime <= 4.00) {
+        x2 = -0.5;
       }
       /*if(limelight.getTargetY() > 22 && limelight.getTargetY() < 23) {
         y1 = 0; 
@@ -155,14 +151,15 @@ public class Robot extends TimedRobot {
         break;
       case kDefaultAuto:
       default:
-        
         // Put default auto code here
         if (startTime == -1) {
           startTime = System.nanoTime();
         }
-
+        if (elapsedTime >= 0.00 && elapsedTime <= 4.00) {
+          x2 = .5;
+        }
         //go forward
-        if(elapsedTime >= 0.00 && elapsedTime <= 5.00) {
+        /*if(elapsedTime >= 0.00 && elapsedTime <= 5.00) {
           y1 = -0.5;
         }
         //spin around 180
@@ -174,13 +171,13 @@ public class Robot extends TimedRobot {
         if(elapsedTime >= 8.26 && elapsedTime <= 13.26) {
           x2 = 0;
           y1 = -0.48;
-        }
+        }*/
 
         SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians);
-        wheelFL.set(swerve.wheelAngles[0], swerve.wheelSpeeds[0]); //grabs information from the arrays and feeds it to the wheels 
-        wheelFR.set(swerve.wheelAngles[1], swerve.wheelSpeeds[1]); //grabs information from the arrays and feeds it to the wheels 
-        wheelBR.set(swerve.wheelAngles[2], swerve.wheelSpeeds[2]); //grabs information from the arrays and feeds it to the wheels 
-        wheelBL.set(swerve.wheelAngles[3], swerve.wheelSpeeds[3]); //grabs information from the arrays and feeds it to the wheels 
+        wheelFL.set(swerve.wheelAngles[0], swerve.wheelSpeeds[0]); 
+        wheelFR.set(swerve.wheelAngles[1], swerve.wheelSpeeds[1]); 
+        wheelBR.set(swerve.wheelAngles[2], swerve.wheelSpeeds[2]); 
+        wheelBL.set(swerve.wheelAngles[3], swerve.wheelSpeeds[3]); 
         break;
     }
   }
