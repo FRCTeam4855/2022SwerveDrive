@@ -116,8 +116,10 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }*/
-    m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    //m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    m_autoSelected = m_chooser.getSelected();
     System.out.println("Auto selected: " + m_autoSelected);
+    SmartDashboard.putString("aton selected", m_autoSelected);
 
   }
 
@@ -128,7 +130,7 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
     double elapsedTime = (System.nanoTime() - startTime) / 1000000000;
     SmartDashboard.putNumber("Elapsed Time right here", elapsedTime);
-     
+    SmartDashboard.putString("autonomousPeriodic", m_autoSelected);
 
       double x1 = 0;
       double x2 = 0;
@@ -136,14 +138,14 @@ public class Robot extends TimedRobot {
 
     switch (m_autoSelected) {
       case kCustomAuto:
-      
-      if (startTime == -1) {
+      SmartDashboard.putString("autonomousPeriodic kCustomAuto", m_autoSelected);
+      /*if (startTime == -1) {
         startTime = System.nanoTime();
       }
 
-      if(elapsedTime >= 0.00 && elapsedTime <= 4.00) {
+      if(elapsedTime >= 0.00 && elapsedTime <= 4.00) {*/
         x2 = -0.5;
-      }
+      //}
       /*if(limelight.getTargetY() > 22 && limelight.getTargetY() < 23) {
         y1 = 0; 
       } else y1 = .25;*/
@@ -151,13 +153,14 @@ public class Robot extends TimedRobot {
         break;
       case kDefaultAuto:
       default:
+      SmartDashboard.putString("autonomousPeriodic kDefaultAuto", m_autoSelected);
         // Put default auto code here
-        if (startTime == -1) {
+        /*if (startTime == -1) {
           startTime = System.nanoTime();
         }
-        if (elapsedTime >= 0.00 && elapsedTime <= 4.00) {
+        if (elapsedTime >= 0.00 && elapsedTime <= 4.00) {*/
           x2 = .5;
-        }
+        //}
         //go forward
         /*if(elapsedTime >= 0.00 && elapsedTime <= 5.00) {
           y1 = -0.5;
@@ -172,14 +175,16 @@ public class Robot extends TimedRobot {
           x2 = 0;
           y1 = -0.48;
         }*/
+        break;
+      }
 
         SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians);
         wheelFL.set(swerve.wheelAngles[0], swerve.wheelSpeeds[0]); 
         wheelFR.set(swerve.wheelAngles[1], swerve.wheelSpeeds[1]); 
         wheelBR.set(swerve.wheelAngles[2], swerve.wheelSpeeds[2]); 
         wheelBL.set(swerve.wheelAngles[3], swerve.wheelSpeeds[3]); 
-        break;
-    }
+       
+    
   }
 
   /**
