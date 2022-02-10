@@ -5,26 +5,21 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot;  
+package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.math.MathUtil;
+import com.kauailabs.navx.frc.AHRS;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType; 
 
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
-import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.wpilibj.SPI;
-
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
-
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+//import edu.wpi.first.wpilibj.XboxController;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -34,33 +29,29 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
  * project. E
  */ 
 public class Robot extends TimedRobot { 
-  
-  static Limelight limelight = new Limelight();
-
 
   double theta_radians; //theta_radians is difference the angle the robot is at, and the zerod angle
+  //double startTime = -1; //random value used for starting elapsedTime
+  //double elapsedTime = 0; //is the elapsedTime for autonomous
+  boolean driverOriented = false; //where the robot is in driver oriented or not
 
-  boolean driverOriented = false;
-
-  private static final String kDefaultAuto = "Default"; //This is the first autonomous routine
+  private static final String kDefaultAuto = "Default"; //This is the first or default autonomous routine
   private static final String kCustomAuto = "My Auto"; //This is the second autonomous routine
   private String m_autoSelected; //This selects between the two autonomous
-  private final SendableChooser<String> m_chooser = new SendableChooser<>(); 
+  private final SendableChooser<String> m_chooser = new SendableChooser<>(); //creates the ability to switch between autons on SmartDashboard
 
-  //CANEncoder encoder;
+  static Limelight limelight = new Limelight();
 
-  //TODO Makes this an xbox controller
-  Joystick joystick = new Joystick(0); //defines the controller 
+  //try using xbox controller instead
+  Joystick joystick = new Joystick(0); //defines the driving controller 
 
-  double startTime = -1;
-  double elapsedTime = 0;
+  AHRS gyro = new AHRS(SPI.Port.kMXP); //defines the gyro
 
   Wheel wheelFL = new Wheel(1, 2, 0, -0.758); //defines the front left wheel
   Wheel wheelBL = new Wheel(3, 4, 1, -0.454); //defines the back left wheel
   Wheel wheelBR = new Wheel(5, 6, 2, -0.143); //defines the back right wheel
   Wheel wheelFR = new Wheel(7, 8, 3, -0.077); //defines the front right wheel
-// Wheel Values: (Wheel Speed MC CAN ID, Angle MC CAN ID, Wheel Array Order?, wheel offset)
-  AHRS gyro = new AHRS(SPI.Port.kMXP);
+//Wheel Values: driveControllerID, steerControllerID, absolutePort(encoder), offSet1
 
   /**
    * This function is run when the robot is first started up and should be
@@ -69,10 +60,9 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto); //chooses the first auto program
-    m_chooser.addOption("My Auto", kCustomAuto); //chooses the second auto program
-    SmartDashboard.putData(m_chooser); 
-
+    m_chooser.setDefaultOption("Default Auto", kDefaultAuto); //defines that this is the first or default auton
+    m_chooser.addOption("My Auto", kCustomAuto); //defines that this is the second auton
+    SmartDashboard.putData(m_chooser); //displays the auton options //maybe move to autonomousInit
 
   }
 
@@ -86,11 +76,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    SmartDashboard.putNumber("Encoder FL", wheelFL.absoluteEncoder.get()); //Displays Encoder Values
-    SmartDashboard.putNumber("Encoder BL", wheelBL.absoluteEncoder.get()); //Displays Encoder Values
-    SmartDashboard.putNumber("Encoder BR", wheelBR.absoluteEncoder.get()); //Displays Encoder Values
-    SmartDashboard.putNumber("Encoder FR", wheelFR.absoluteEncoder.get()); //Displays Encoder Values
-    
+    SmartDashboard.putNumber("Encoder FL", wheelFL.absoluteEncoder.get()); //Displays Front Left Wheel Encoder Values
+    SmartDashboard.putNumber("Encoder BL", wheelBL.absoluteEncoder.get()); //Displays Back Left Wheel Encoder Values
+    SmartDashboard.putNumber("Encoder BR", wheelBR.absoluteEncoder.get()); //Displays Back Right Wheel Encoder Values
+    SmartDashboard.putNumber("Encoder FR", wheelFR.absoluteEncoder.get()); //Displays Front Right Wheel Encoder Values
   }
 
   /**
@@ -104,87 +93,52 @@ public class Robot extends TimedRobot {
    * the switch structure below with additional strings. If using the
    * SendableChooser make sure to add them to the chooser code above as well.
    */
-
   @Override
   public void autonomousInit() {
-   /*public Command robot.getAutonomousCommand() {
-      return m_chooser.getSelected();
-   }
-    m_autonomousCommand = getAutonomousCommand();
 
-    // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }*/
-    //m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    m_autoSelected = m_chooser.getSelected();
-    System.out.println("Auto selected: " + m_autoSelected);
-    SmartDashboard.putString("aton selected", m_autoSelected);
+    m_autoSelected = m_chooser.getSelected(); //conects the auton options and the switch method where the autons are written
+    SmartDashboard.putString("aton selected", m_autoSelected); //displays which auton is currently running
 
   }
 
-  /**
+  //goes in autonomousPeriodic when using elapsedTime based code
+  //resets the startTime whenever an autonomous program is started
+    /*if (startTime == -1) {
+        startTime = System.nanoTime();
+      }
+    double elapsedTime = (System.nanoTime() - startTime) / 1000000000;*/ //sets elapsedTime
+
+ /**
    * This function is called periodically during autonomous.
    */
   @Override
   public void autonomousPeriodic() {
-    double elapsedTime = (System.nanoTime() - startTime) / 1000000000;
-    SmartDashboard.putNumber("Elapsed Time right here", elapsedTime);
-    SmartDashboard.putString("autonomousPeriodic", m_autoSelected);
 
-      double x1 = 0;
-      double x2 = 0;
-      double y1 = 0;
+    //these values are inverted so negative and positive are reversed
+      double x1 = 0; //defines left and right movement for auton
+      double x2 = 0; //defines spinning movement for auton
+      double y1 = 0; //defines forward and backward movement for auton
 
     switch (m_autoSelected) {
+      //second auton code
       case kCustomAuto:
-      SmartDashboard.putString("autonomousPeriodic kCustomAuto", m_autoSelected);
-      /*if (startTime == -1) {
-        startTime = System.nanoTime();
-      }
-
-      if(elapsedTime >= 0.00 && elapsedTime <= 4.00) {*/
         x2 = -0.5;
-      //}
-      /*if(limelight.getTargetY() > 22 && limelight.getTargetY() < 23) {
-        y1 = 0; 
-      } else y1 = .25;*/
-      
-        break;
-      case kDefaultAuto:
-      default:
-      SmartDashboard.putString("autonomousPeriodic kDefaultAuto", m_autoSelected);
-        // Put default auto code here
-        /*if (startTime == -1) {
-          startTime = System.nanoTime();
-        }
-        if (elapsedTime >= 0.00 && elapsedTime <= 4.00) {*/
+        break; //end of second auton code
+
+      //first or default auton code
+      case kDefaultAuto: 
+      default: //is not a nescessaty, is like a fail safe and again states that this is the default auton
           x2 = .5;
-        //}
-        //go forward
-        /*if(elapsedTime >= 0.00 && elapsedTime <= 5.00) {
-          y1 = -0.5;
-        }
-        //spin around 180
-        if(elapsedTime >= 5.00 && elapsedTime <= 7.26){
-          y1 = 0;
-          x2 = 0.35;
-        }
-        //go forward again
-        if(elapsedTime >= 8.26 && elapsedTime <= 13.26) {
-          x2 = 0;
-          y1 = -0.48;
-        }*/
         break;
       }
 
-        SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians);
-        wheelFL.set(swerve.wheelAngles[0], swerve.wheelSpeeds[0]); 
-        wheelFR.set(swerve.wheelAngles[1], swerve.wheelSpeeds[1]); 
-        wheelBR.set(swerve.wheelAngles[2], swerve.wheelSpeeds[2]); 
-        wheelBL.set(swerve.wheelAngles[3], swerve.wheelSpeeds[3]); 
-       
-    
+      //is still a part of m_autoSelected and it grabs the things needed for driving in auton
+        SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians); //grabs the driving variables and theata from Wheel.java
+        wheelFL.set(swerve.wheelAngles[0], swerve.wheelSpeeds[0]); //grabs information from the arrays and feeds it to the wheels
+        wheelFR.set(swerve.wheelAngles[1], swerve.wheelSpeeds[1]); //grabs information from the arrays and feeds it to the wheels
+        wheelBR.set(swerve.wheelAngles[2], swerve.wheelSpeeds[2]); //grabs information from the arrays and feeds it to the wheels
+        wheelBL.set(swerve.wheelAngles[3], swerve.wheelSpeeds[3]); //grabs information from the arrays and feeds it to the wheels
+
   }
 
   /**
@@ -193,23 +147,20 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    SmartDashboard.putNumber("limelightX", limelight.getTargetX());
-    SmartDashboard.putNumber("limelightY", limelight.getTargetY());
+    SmartDashboard.putNumber("limelightX", limelight.getTargetX()); //displays the limelight X "tx" values on SmartDashboard
+    SmartDashboard.putNumber("limelightY", limelight.getTargetY()); //displays the limelight Y "ty" values on SmartDashboard
 
-    double x1 = joystick.getRawAxis(0); //grabs the x-axis value of the left joystick
-    double x2 = joystick.getRawAxis(4); //grabs the x-axis value of the right joystick
-    double y1 = joystick.getRawAxis(1); //grabs the y-axis value of the left joystick
+    double x1 = joystick.getRawAxis(0); //connects the left and right drive movements to the drive controllers left x-axis
+    double x2 = joystick.getRawAxis(4); //connects the spinning drive movements to the drive controllers right x-axis
+    double y1 = joystick.getRawAxis(1); //connects the forwards and backwards drive movements to the drive controllers left y-axis
 
-   //double theta_radians = gyro.getYaw()* Math.PI / 180;; //theta_radians is difference the angle the robot is at, and the zerod angle
+    //this tells the robot when it should be driverOriented or robotOriented
     if (driverOriented) {
-      theta_radians = gyro.getYaw() * Math.PI / 180;
-    }else theta_radians = 0;
+      theta_radians = gyro.getYaw() * Math.PI / 180; //driverOriented
+    }else theta_radians = 0; //robotOriented
 
-    SmartDashboard.putNumber("Gyro Get Raw", gyro.getYaw());
-    SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians); //puts it all together?
-    
-    //SmartDashboard.putNumber("SetPoint BL", swerve.wheelAngles[3] - wheelBL.offSet0);
-    //SmartDashboard.putNumber("Math", Math.sin(45));
+    SmartDashboard.putNumber("Gyro Get Raw", gyro.getYaw()); //displays the gyro Yaw value on SmartDashboard
+    SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians); //grabs the driving variables and theata from Wheel.java
     
     wheelFL.set(swerve.wheelAngles[0], swerve.wheelSpeeds[0]); //grabs information from the arrays and feeds it to the wheels 
     wheelFR.set(swerve.wheelAngles[1], swerve.wheelSpeeds[1]); //grabs information from the arrays and feeds it to the wheels 
@@ -221,17 +172,17 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("AngleBR", swerve.wheelAngles[2]); //Displays the wheel angles on the smartdashboard
     SmartDashboard.putNumber("AngleBL", swerve.wheelAngles[3]); //Displays the wheel angles on the smartdashboard
 
-    if (joystick.getRawButtonPressed(4)) { //zeros the gyro if you press the Y button
+    //zeros the gyro if you press the Y button
+    if (joystick.getRawButtonPressed(4)) { 
       gyro.reset();
     }
-//This turns driver oriented on and off when x is pressed
+  //This turns driver oriented on and off when x is pressed
     if (joystick.getRawButtonPressed(3)){
       if (driverOriented == false){
       driverOriented = true;
       }else{driverOriented = false;}
     }
-    
-   
+
   }
 
   /**
@@ -240,4 +191,5 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
   }
+  
 }
