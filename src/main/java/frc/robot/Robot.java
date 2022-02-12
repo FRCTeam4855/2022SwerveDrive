@@ -7,17 +7,18 @@
 
 package frc.robot;
 
+import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.math.MathUtil;
-import com.kauailabs.navx.frc.AHRS;
-
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType; 
+//import edu.wpi.first.math.MathUtil;
+//import com.revrobotics.CANSparkMax;
+//import com.revrobotics.CANSparkMaxLowLevel.MotorType; 
+//import com.revrobotics.RelativeEncoder;
 
 //import edu.wpi.first.wpilibj.XboxController;
 
@@ -29,16 +30,20 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
  * project. E
  */ 
 public class Robot extends TimedRobot { 
-
+ 
   double theta_radians; //theta_radians is difference the angle the robot is at, and the zerod angle
   //double startTime = -1; //random value used for starting elapsedTime
   //double elapsedTime = 0; //is the elapsedTime for autonomous
   boolean driverOriented = false; //where the robot is in driver oriented or not
+  double deviceIDFL = 1;
 
   private static final String kDefaultAuto = "Default"; //This is the first or default autonomous routine
   private static final String kCustomAuto = "My Auto"; //This is the second autonomous routine
   private String m_autoSelected; //This selects between the two autonomous
   private final SendableChooser<String> m_chooser = new SendableChooser<>(); //creates the ability to switch between autons on SmartDashboard
+
+  //driverController = new CANSparkMax(deviceIDFL, MotorType.kBrushless);
+  //RelativeEncoder encoder;
 
   static Limelight limelight = new Limelight();
 
@@ -80,6 +85,10 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Encoder BL", wheelBL.absoluteEncoder.get()); //Displays Back Left Wheel Encoder Values
     SmartDashboard.putNumber("Encoder BR", wheelBR.absoluteEncoder.get()); //Displays Back Right Wheel Encoder Values
     SmartDashboard.putNumber("Encoder FR", wheelFR.absoluteEncoder.get()); //Displays Front Right Wheel Encoder Values
+    SmartDashboard.putNumber("RelativeEncoder FL", wheelFL.getDriveRelativeEncoderValue());
+    SmartDashboard.putNumber("RelativeEncoder BL", wheelBL.getDriveRelativeEncoderValue());
+    SmartDashboard.putNumber("RelativeEncoder BR", wheelBR.getDriveRelativeEncoderValue());
+    SmartDashboard.putNumber("RelativeEncoder FR", wheelFR.getDriveRelativeEncoderValue());
   }
 
   /**
@@ -183,6 +192,12 @@ public class Robot extends TimedRobot {
       }else{driverOriented = false;}
     }
 
+    if (joystick.getRawButtonPressed(2)){//button B
+      wheelFL.setRelativeEncoderToZero();
+      wheelBL.setRelativeEncoderToZero();
+      wheelBR.setRelativeEncoderToZero();
+      wheelFR.setRelativeEncoderToZero();
+    }
   }
 
   /**
