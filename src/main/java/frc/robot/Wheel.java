@@ -9,14 +9,14 @@ import edu.wpi.first.math.MathUtil;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.RelativeEncoder;//CANEncoder
+import com.revrobotics.RelativeEncoder; //CANEncoder
 
 public class Wheel {
 
     CANSparkMax driveController; //defines the motor controller for the wheel speeds
     CANSparkMax steerController; //defines the motor cotrollers for the wheel angles
     DutyCycleEncoder absoluteEncoder; //defines the encoder
-    //RelativeEncoder encoder; //defines a CAN encoder for the wheel //I don't think we need this
+    RelativeEncoder relativeEncoder; //defines a CAN encoder for the wheel //I don't think we need this
 
     public double offSet0; //this an offset that is later used
 
@@ -68,6 +68,8 @@ public class Wheel {
         steerController.set(MathUtil.clamp(desiredSpeed, -0.1, 0.1));
     }
 
+
+
     private void setSpeed(double motorSpeed) {
         if (isFlipped) motorSpeed *= -1; //this the speed the wheels will flip at, just don't change it
         driveController.set(motorSpeed * 0.5); //this is where you change the speed of the wheels
@@ -78,11 +80,19 @@ public class Wheel {
         setSpeed(speed);
     }
 
+    public double getDriveRelativeEncoderValue(){
+        return relativeEncoder.getPosition();
+    }
+
+    public void setRelativeEncoderToZero(){
+        relativeEncoder.setPosition(0);
+    }
+
     public Wheel(int driveControllerID, int steerControllerID, int absolutePort, double offSet1) {
         driveController = new CANSparkMax(driveControllerID, MotorType.kBrushless); //defining the motor controller for the wheel speeds and its port
         steerController = new CANSparkMax(steerControllerID, MotorType.kBrushless); //defining the motor controller for the wheel angles and its port
         absoluteEncoder = new DutyCycleEncoder(absolutePort); //defining the encoder and its port
-        //encoder = new RelativeEncoder(steerController); //defining the encoder that finds the wheel angle //This is an error. Is it important?
+        relativeEncoder = driveController.getEncoder();//relativePort); //maybe add another int to Wheel for this, would it just be 0 1 2 and 3 in Robot.java
         offSet0 = offSet1; //offSet for wheels
     }
 }
