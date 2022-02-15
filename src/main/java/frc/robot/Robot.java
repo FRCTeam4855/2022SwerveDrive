@@ -37,11 +37,11 @@ public class Robot extends TimedRobot {
   boolean driverOriented = false; //where the robot is in driver oriented or not
   double deviceIDFL = 1;
 
-  private static final String kDefaultAuto = "Default"; //This is the first or default autonomous routine
-  private static final String kCustomAuto = "My Auto"; //This is the second autonomous routine
+  private static final String kAuton1 = "Auton Mode 1"; //This is the first or default autonomous routine
+  private static final String kAuton2 = "Auton Mode 2"; //This is the second autonomous routine
   private String m_autoSelected; //This selects between the two autonomous
-  private final SendableChooser<String> m_chooser = new SendableChooser<>(); //creates the ability to switch between autons on SmartDashboard
-
+  public final SendableChooser<String> m_chooser = new SendableChooser<>(); //creates the ability to switch between autons on SmartDashboard
+  public boolean autozero = false;
   //driverController = new CANSparkMax(deviceIDFL, MotorType.kBrushless);
   //RelativeEncoder encoder;
 
@@ -65,9 +65,10 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto); //defines that this is the first or default auton
-    m_chooser.addOption("My Auto", kCustomAuto); //defines that this is the second auton
+    m_chooser.setDefaultOption("Auton Mode 1", kAuton1); //defines that this is the first or default auton
+    m_chooser.addOption("Auton Mode 2", kAuton2); //defines that this is the second auton
     SmartDashboard.putData(m_chooser); //displays the auton options //maybe move to autonomousInit
+
 
   }
 
@@ -106,7 +107,11 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
 
     m_autoSelected = m_chooser.getSelected(); //conects the auton options and the switch method where the autons are written
-    SmartDashboard.putString("aton selected", m_autoSelected); //displays which auton is currently running
+    SmartDashboard.putString("auton selected", m_autoSelected); //displays which auton is currently running
+      wheelFL.setRelativeEncoderToZero();
+      wheelBL.setRelativeEncoderToZero();
+      wheelBR.setRelativeEncoderToZero();
+      wheelFR.setRelativeEncoderToZero();
 
   }
 
@@ -122,7 +127,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-
+    SmartDashboard.putNumber("Gyro Get Raw Auton", gyro.getYaw());
     //these values are inverted so negative and positive are reversed
       double x1 = 0; //defines left and right movement for auton
       double x2 = 0; //defines spinning movement for auton
@@ -130,15 +135,24 @@ public class Robot extends TimedRobot {
 
     switch (m_autoSelected) {
       //second auton code
-      case kCustomAuto:
+      case kAuton2:
         x2 = -0.5;
         break; //end of second auton code
 
       //first or default auton code
-      case kDefaultAuto: 
+      case kAuton1: 
       default: //is not a nescessaty, is like a fail safe and again states that this is the default auton
-          x2 = .5;
-        break;
+      
+      if (autozero = false){
+      //gyro.reset();
+      autozero = true;
+      }
+
+      if (gyro.getYaw() > 55 && gyro.getYaw() < 150){
+        x2 = 0;
+      }else x2 = .3;
+
+      break;
       }
 
       //is still a part of m_autoSelected and it grabs the things needed for driving in auton
@@ -191,6 +205,7 @@ public class Robot extends TimedRobot {
       driverOriented = true;
       }else{driverOriented = false;}
     }
+    SmartDashboard.putBoolean("Driver Oriented", driverOriented);
 
     if (joystick.getRawButtonPressed(2)){//button B
       wheelFL.setRelativeEncoderToZero();
