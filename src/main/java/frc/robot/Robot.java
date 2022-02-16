@@ -9,6 +9,9 @@ package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSink;
+import edu.wpi.first.cscore.CvSource;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -40,8 +43,9 @@ public class Robot extends TimedRobot {
   private static final String kAuton1 = "Auton Mode 1"; //This is the first or default autonomous routine
   private static final String kAuton2 = "Auton Mode 2"; //This is the second autonomous routine
   private String m_autoSelected; //This selects between the two autonomous
-  public final SendableChooser<String> m_chooser = new SendableChooser<>(); //creates the ability to switch between autons on SmartDashboard
+  public SendableChooser<String> m_chooser = new SendableChooser<>(); //creates the ability to switch between autons on SmartDashboard
   public boolean autozero = false;
+  double autonsub1 = 0;
   //driverController = new CANSparkMax(deviceIDFL, MotorType.kBrushless);
   //RelativeEncoder encoder;
 
@@ -64,6 +68,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+
+    CameraServer.startAutomaticCapture();
+    CvSink cvSink = CameraServer.getVideo();
+    CvSource outputStream = CameraServer.putVideo("Blur", 640, 480);
 
     m_chooser.setDefaultOption("Auton Mode 1", kAuton1); //defines that this is the first or default auton
     m_chooser.addOption("Auton Mode 2", kAuton2); //defines that this is the second auton
@@ -112,6 +120,7 @@ public class Robot extends TimedRobot {
       wheelBL.setRelativeEncoderToZero();
       wheelBR.setRelativeEncoderToZero();
       wheelFR.setRelativeEncoderToZero();
+      gyro.reset();
 
   }
 
@@ -143,14 +152,15 @@ public class Robot extends TimedRobot {
       case kAuton1: 
       default: //is not a nescessaty, is like a fail safe and again states that this is the default auton
       
-      if (autozero = false){
-      //gyro.reset();
-      autozero = true;
-      }
-
-      if (gyro.getYaw() > 55 && gyro.getYaw() < 150){
+      if ((gyro.getYaw() + 180) > 300 && autonsub1 == 0){
         x2 = 0;
-      }else x2 = .3;
+        autonsub1 = 1;
+      }else x2 = .4;
+      
+      if ((gyro.getYaw() + 180) > 307 && autonsub1 == 1){
+        x2 = 0;
+        autonsub1 = 2;
+      }else x2 = -.17;
 
       break;
       }
