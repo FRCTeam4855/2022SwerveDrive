@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+
 //import edu.wpi.first.math.MathUtil;
 //import com.revrobotics.CANSparkMax;
 //import com.revrobotics.CANSparkMaxLowLevel.MotorType; 
@@ -98,6 +99,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("RelativeEncoder BL", wheelBL.getDriveRelativeEncoderValue());
     SmartDashboard.putNumber("RelativeEncoder BR", wheelBR.getDriveRelativeEncoderValue());
     SmartDashboard.putNumber("RelativeEncoder FR", wheelFR.getDriveRelativeEncoderValue());
+
+    SmartDashboard.putNumber("Gyro Get Raw", gyro.getYaw()); //pulls gyro values
   }
 
   /**
@@ -122,6 +125,8 @@ public class Robot extends TimedRobot {
       wheelFR.setRelativeEncoderToZero();
       gyro.reset();
 
+
+
   }
 
   //goes in autonomousPeriodic when using elapsedTime based code
@@ -136,7 +141,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    SmartDashboard.putNumber("Gyro Get Raw Auton", gyro.getYaw());
+   
     //these values are inverted so negative and positive are reversed
       double x1 = 0; //defines left and right movement for auton
       double x2 = 0; //defines spinning movement for auton
@@ -192,7 +197,7 @@ public class Robot extends TimedRobot {
       theta_radians = gyro.getYaw() * Math.PI / 180; //driverOriented
     }else theta_radians = 0; //robotOriented
 
-    SmartDashboard.putNumber("Gyro Get Raw", gyro.getYaw()); //displays the gyro Yaw value on SmartDashboard
+    
     SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians); //grabs the driving variables and theata from Wheel.java
     
     wheelFL.set(swerve.wheelAngles[0], swerve.wheelSpeeds[0]); //grabs information from the arrays and feeds it to the wheels 
