@@ -15,8 +15,14 @@ import edu.wpi.first.cscore.CvSource;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 
 //import edu.wpi.first.math.MathUtil;
@@ -39,6 +45,7 @@ public class Robot extends TimedRobot {
   //double startTime = -1; //random value used for starting elapsedTime
   //double elapsedTime = 0; //is the elapsedTime for autonomous
   boolean driverOriented = false; //where the robot is in driver oriented or not
+  boolean climberForward = false;
   double deviceIDFL = 1;
 
   private static final String kAuton1 = "Auton Mode 1"; //This is the first or default autonomous routine
@@ -47,13 +54,29 @@ public class Robot extends TimedRobot {
   public SendableChooser<String> m_chooser = new SendableChooser<>(); //creates the ability to switch between autons on SmartDashboard
   public boolean autozero = false;
   double autonsub1 = 0;
+  double armMotorSpeedLimit = 1;
+  double armMotorDeadZone = .02;
+  double flywheelSpeed = .5;
   //driverController = new CANSparkMax(deviceIDFL, MotorType.kBrushless);
   //RelativeEncoder encoder;
 
   static Limelight limelight = new Limelight();
 
   //try using xbox controller instead
-  Joystick joystick = new Joystick(0); //defines the driving controller 
+  Joystick joystick = new Joystick(0); //defines the driving controller
+  Joystick operator = new Joystick(1);  
+
+  DoubleSolenoid climberArmL = new DoubleSolenoid(10, PneumaticsModuleType.REVPH, 0, 1);
+  DoubleSolenoid climberArmR = new DoubleSolenoid(10, PneumaticsModuleType.REVPH, 2, 3);
+  Spark armMotorL = new Spark(2);
+  Spark armMotorR = new Spark(3);
+
+  DoubleSolenoid intakeArmL = new DoubleSolenoid(10, PneumaticsModuleType.REVPH, 4, 5);
+  DoubleSolenoid intakeArmR = new DoubleSolenoid(10, PneumaticsModuleType.REVPH, 6, 7);
+
+  Spark intake = new Spark(0);
+  Spark index = new Spark(1);
+  CANSparkMax flywheel = new CANSparkMax(9, MotorType.kBrushless);
 
   AHRS gyro = new AHRS(SPI.Port.kMXP); //defines the gyro
 
@@ -69,6 +92,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+
+    climberArmL.set(Value.kForward);
+    climberArmR.set(Value.kForward);
+    intakeArmL.set(Value.kForward);
+    intakeArmR.set(Value.kForward);
+    //flywheel.set(.5);
 
     CameraServer.startAutomaticCapture();
     CvSink cvSink = CameraServer.getVideo();
@@ -101,6 +130,10 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("RelativeEncoder FR", wheelFR.getDriveRelativeEncoderValue());
 
     SmartDashboard.putNumber("Gyro Get Raw", gyro.getYaw()); //pulls gyro values
+
+    if (intakeArmL.get() == Value.kForward) {
+      intake.set(1);
+    }
   }
 
   /**
@@ -185,6 +218,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
+    flywheel.set(flywheelSpeed);
+
     SmartDashboard.putNumber("limelightX", limelight.getTargetX()); //displays the limelight X "tx" values on SmartDashboard
     SmartDashboard.putNumber("limelightY", limelight.getTargetY()); //displays the limelight Y "ty" values on SmartDashboard
 
@@ -228,7 +263,46 @@ public class Robot extends TimedRobot {
       wheelBR.setRelativeEncoderToZero();
       wheelFR.setRelativeEncoderToZero();
     }
+
+    if (operator.getRawButtonPressed(4)){
+      if (climberArmL.get() == Value.kForward && climberArmR.get() == Value.kForward) {
+        climberArmL.set(Value.kReverse);
+        climberArmR.set(Value.kReverse);
+      } else if (climberArmL.get() == Value.kReverse && climberArmR.get() == Value.kReverse) {
+        climberArmL.set(Value.kForward);
+        climberArmR.set(Value.kForward);
+      }
+    }
+    if (Math.abs(operator.getRawAxis(1)) < armMotorDeadZone) {
+      armMotorL.set(0);
+      armMotorR.set(0);
+    }
+    armMotorL.set(operator.getRawAxis(1));
+    armMotorR.set(operator.getRawAxis(1));
+
+    if (operator.getRawButtonPressed(3)){
+      if (intakeArmL.get() == Value.kForward && intakeArmR.get() == Value.kForward) {
+        intakeArmL.set(Value.kReverse);
+        intakeArmR.set(Value.kReverse);
+      } else if (intakeArmL.get() == Value.kReverse && intakeArmR.get() == Value.kReverse) {
+        intakeArmL.set(Value.kForward);
+        intakeArmR.set(Value.kForward);
+      }
+    }
+
+    if (operator.getRawButton(2)){
+      index.set(1);
+    }
+
+    if (operator.getRawButtonPressed(6)){
+      flywheelSpeed = flywheelSpeed + .1;
+    }
+    if (operator.getRawButtonPressed(5)){
+      flywheelSpeed = flywheelSpeed - .1;
+    }
   }
+
+  
 
   /**
    * This function is called periodically during test mode.
