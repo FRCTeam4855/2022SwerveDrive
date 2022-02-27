@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.Subsystems;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -15,7 +15,7 @@ public class Wheel {
 
     CANSparkMax driveController; //defines the motor controller for the wheel speeds
     CANSparkMax steerController; //defines the motor cotrollers for the wheel angles
-    DutyCycleEncoder absoluteEncoder; //defines the encoder
+    public DutyCycleEncoder absoluteEncoder; //defines the encoder
     RelativeEncoder relativeEncoder; //defines a CAN encoder for the wheel //I don't think we need this
 
     public double offSet0; //this an offset that is later used
