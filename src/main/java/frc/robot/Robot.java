@@ -66,8 +66,8 @@ public class Robot extends TimedRobot {
   Joystick joystick = new Joystick(0); //defines the driving controller
   Joystick operator = new Joystick(1);  
 
-  DoubleSolenoid climberArmL = new DoubleSolenoid(10, PneumaticsModuleType.REVPH, 0, 1);
-  DoubleSolenoid climberArmR = new DoubleSolenoid(10, PneumaticsModuleType.REVPH, 2, 3);
+  //DoubleSolenoid climberArmL = new DoubleSolenoid(10, PneumaticsModuleType.REVPH, 0, 1);
+  //DoubleSolenoid climberArmR = new DoubleSolenoid(10, PneumaticsModuleType.REVPH, 2, 3);
   Spark armMotorL = new Spark(2);
   Spark armMotorR = new Spark(3);
 
@@ -92,7 +92,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-
     climberArmL.set(Value.kForward);
     climberArmR.set(Value.kForward);
     intakeArmL.set(Value.kForward);
@@ -246,7 +245,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("AngleBL", swerve.wheelAngles[3]); //Displays the wheel angles on the smartdashboard
 
     //zeros the gyro if you press the Y button
-    if (joystick.getRawButtonPressed(4)) { 
+    // if (joystick.getRawButtonPressed(4)) { 
+    if (joystick.getRawButtonPressed(Constants.GYRO_RESET)) { 
       gyro.reset();
     }
   //This turns driver oriented on and off when x is pressed
@@ -280,7 +280,7 @@ public class Robot extends TimedRobot {
     armMotorL.set(operator.getRawAxis(1));
     armMotorR.set(operator.getRawAxis(1));
 
-    if (operator.getRawButtonPressed(3)){
+    if (operator.getRawButtonPressed(7)){
       if (intakeArmL.get() == Value.kForward && intakeArmR.get() == Value.kForward) {
         intakeArmL.set(Value.kReverse);
         intakeArmR.set(Value.kReverse);
