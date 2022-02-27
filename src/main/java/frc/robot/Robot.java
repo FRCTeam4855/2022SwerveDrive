@@ -9,15 +9,24 @@ package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.CvSink;
-import edu.wpi.first.cscore.CvSource;
+// import edu.wpi.first.cameraserver.CameraServer;
+// import edu.wpi.first.cscore.CvSink;
+// import edu.wpi.first.cscore.CvSource;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Commands.SwerveDriveMoveForward;
+import frc.robot.Commands.SwerveDriveStop;
+import frc.robot.Subsystems.Climber;
+import frc.robot.Subsystems.GenericDriveSystem;
+import frc.robot.Subsystems.Swerve;
+import frc.robot.Subsystems.SwerveDriveSystem;
+import frc.robot.Subsystems.SwerveOutput;
+import frc.robot.Subsystems.Wheel;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
@@ -42,8 +51,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 public class Robot extends TimedRobot { 
  
   double theta_radians; //theta_radians is difference the angle the robot is at, and the zerod angle
-  //double startTime = -1; //random value used for starting elapsedTime
-  //double elapsedTime = 0; //is the elapsedTime for autonomous
   boolean driverOriented = false; //where the robot is in driver oriented or not
   boolean climberForward = false;
   double deviceIDFL = 1;
@@ -66,8 +73,8 @@ public class Robot extends TimedRobot {
   Joystick joystick = new Joystick(0); //defines the driving controller
   Joystick operator = new Joystick(1);  
 
-  //DoubleSolenoid climberArmL = new DoubleSolenoid(10, PneumaticsModuleType.REVPH, 0, 1);
-  //DoubleSolenoid climberArmR = new DoubleSolenoid(10, PneumaticsModuleType.REVPH, 2, 3);
+  Climber climber = new Climber();
+
   Spark armMotorL = new Spark(2);
   Spark armMotorR = new Spark(3);
 
@@ -80,11 +87,12 @@ public class Robot extends TimedRobot {
 
   AHRS gyro = new AHRS(SPI.Port.kMXP); //defines the gyro
 
-  Wheel wheelFL = new Wheel(1, 2, 0, -0.758); //defines the front left wheel
-  Wheel wheelBL = new Wheel(3, 4, 1, -0.454); //defines the back left wheel
-  Wheel wheelBR = new Wheel(5, 6, 2, -0.143); //defines the back right wheel
-  Wheel wheelFR = new Wheel(7, 8, 3, -0.077); //defines the front right wheel
+  // Wheel wheelFL = new Wheel(1, 2, 0, -0.758); //defines the front left wheel
+  // Wheel wheelBL = new Wheel(3, 4, 1, -0.454); //defines the back left wheel
+  // Wheel wheelBR = new Wheel(5, 6, 2, -0.143); //defines the back right wheel
+  // Wheel wheelFR = new Wheel(7, 8, 3, -0.077); //defines the front right wheel
 //Wheel Values: driveControllerID, steerControllerID, absolutePort(encoder), offSet1
+  SwerveDriveSystem driveSystem = new SwerveDriveSystem();
 
   /**
    * This function is run when the robot is first started up and should be
@@ -92,15 +100,14 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    climberArmL.set(Value.kForward);
-    climberArmR.set(Value.kForward);
+    climber.setClimberForward();
     intakeArmL.set(Value.kForward);
     intakeArmR.set(Value.kForward);
     //flywheel.set(.5);
 
-    CameraServer.startAutomaticCapture();
-    CvSink cvSink = CameraServer.getVideo();
-    CvSource outputStream = CameraServer.putVideo("Blur", 640, 480);
+    // CameraServer.startAutomaticCapture();
+    // CvSink cvSink = CameraServer.getVideo();
+    // CvSource outputStream = CameraServer.putVideo("Blur", 640, 480);
 
     m_chooser.setDefaultOption("Auton Mode 1", kAuton1); //defines that this is the first or default auton
     m_chooser.addOption("Auton Mode 2", kAuton2); //defines that this is the second auton
@@ -119,14 +126,14 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    SmartDashboard.putNumber("Encoder FL", wheelFL.absoluteEncoder.get()); //Displays Front Left Wheel Encoder Values
-    SmartDashboard.putNumber("Encoder BL", wheelBL.absoluteEncoder.get()); //Displays Back Left Wheel Encoder Values
-    SmartDashboard.putNumber("Encoder BR", wheelBR.absoluteEncoder.get()); //Displays Back Right Wheel Encoder Values
-    SmartDashboard.putNumber("Encoder FR", wheelFR.absoluteEncoder.get()); //Displays Front Right Wheel Encoder Values
-    SmartDashboard.putNumber("RelativeEncoder FL", wheelFL.getDriveRelativeEncoderValue());
-    SmartDashboard.putNumber("RelativeEncoder BL", wheelBL.getDriveRelativeEncoderValue());
-    SmartDashboard.putNumber("RelativeEncoder BR", wheelBR.getDriveRelativeEncoderValue());
-    SmartDashboard.putNumber("RelativeEncoder FR", wheelFR.getDriveRelativeEncoderValue());
+    // SmartDashboard.putNumber("Encoder FL", wheelFL.absoluteEncoder.get()); //Displays Front Left Wheel Encoder Values
+    // SmartDashboard.putNumber("Encoder BL", wheelBL.absoluteEncoder.get()); //Displays Back Left Wheel Encoder Values
+    // SmartDashboard.putNumber("Encoder BR", wheelBR.absoluteEncoder.get()); //Displays Back Right Wheel Encoder Values
+    // SmartDashboard.putNumber("Encoder FR", wheelFR.absoluteEncoder.get()); //Displays Front Right Wheel Encoder Values
+    SmartDashboard.putNumber("RelativeEncoder FL", driveSystem.getEncoderFL());
+    SmartDashboard.putNumber("RelativeEncoder BL", driveSystem.getEncoderBL());
+    SmartDashboard.putNumber("RelativeEncoder BR", driveSystem.getEncoderBR());
+    SmartDashboard.putNumber("RelativeEncoder FR", driveSystem.getEncoderFR());
 
     SmartDashboard.putNumber("Gyro Get Raw", gyro.getYaw()); //pulls gyro values
 
@@ -134,7 +141,6 @@ public class Robot extends TimedRobot {
       intake.set(1);
     }
   }
-
   /**
    * This autonomous (along with the chooser code above) shows how to select
    * between different autonomous modes using the dashboard. The sendable
@@ -151,13 +157,15 @@ public class Robot extends TimedRobot {
 
     m_autoSelected = m_chooser.getSelected(); //conects the auton options and the switch method where the autons are written
     SmartDashboard.putString("auton selected", m_autoSelected); //displays which auton is currently running
-      wheelFL.setRelativeEncoderToZero();
-      wheelBL.setRelativeEncoderToZero();
-      wheelBR.setRelativeEncoderToZero();
-      wheelFR.setRelativeEncoderToZero();
+      // wheelFL.setRelativeEncoderToZero();
+      // wheelBL.setRelativeEncoderToZero();
+      // wheelBR.setRelativeEncoderToZero();
+      // wheelFR.setRelativeEncoderToZero();
+      driveSystem.resetRelativeEncoders();
       gyro.reset();
-
-
+      CommandScheduler.getInstance().setDefaultCommand(driveSystem, new SwerveDriveStop(driveSystem));
+      SwerveDriveMoveForward swerveDriveMoveForward = new SwerveDriveMoveForward(driveSystem);
+      swerveDriveMoveForward.schedule();
 
   }
 
@@ -173,6 +181,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
+    CommandScheduler.getInstance().run();
    
     //these values are inverted so negative and positive are reversed
       double x1 = 0; //defines left and right movement for auton
@@ -182,32 +191,31 @@ public class Robot extends TimedRobot {
     switch (m_autoSelected) {
       //second auton code
       case kAuton2:
-        x2 = -0.5;
+        //x2 = -0.5;
         break; //end of second auton code
 
       //first or default auton code
       case kAuton1: 
       default: //is not a nescessaty, is like a fail safe and again states that this is the default auton
       
-      if ((gyro.getYaw() + 180) > 300 && autonsub1 == 0){
-        x2 = 0;
-        autonsub1 = 1;
-      }else x2 = .4;
+      // if ((gyro.getYaw() + 180) > 300 && autonsub1 == 0){
+      //   x2 = 0;
+      //   autonsub1 = 1;
+      // }else x2 = .4;
       
-      if ((gyro.getYaw() + 180) > 307 && autonsub1 == 1){
-        x2 = 0;
-        autonsub1 = 2;
-      }else x2 = -.17;
-
+      // if ((gyro.getYaw() + 180) > 307 && autonsub1 == 1){
+      //   x2 = 0;
+      //   autonsub1 = 2;
+      // }else x2 = -.17;
       break;
       }
 
       //is still a part of m_autoSelected and it grabs the things needed for driving in auton
-        SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians); //grabs the driving variables and theata from Wheel.java
-        wheelFL.set(swerve.wheelAngles[0], swerve.wheelSpeeds[0]); //grabs information from the arrays and feeds it to the wheels
-        wheelFR.set(swerve.wheelAngles[1], swerve.wheelSpeeds[1]); //grabs information from the arrays and feeds it to the wheels
-        wheelBR.set(swerve.wheelAngles[2], swerve.wheelSpeeds[2]); //grabs information from the arrays and feeds it to the wheels
-        wheelBL.set(swerve.wheelAngles[3], swerve.wheelSpeeds[3]); //grabs information from the arrays and feeds it to the wheels
+       // SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians); //grabs the driving variables and theata from Wheel.java
+        // wheelFL.set(swerve.wheelAngles[0], swerve.wheelSpeeds[0]); //grabs information from the arrays and feeds it to the wheels
+        // wheelFR.set(swerve.wheelAngles[1], swerve.wheelSpeeds[1]); //grabs information from the arrays and feeds it to the wheels
+        // wheelBR.set(swerve.wheelAngles[2], swerve.wheelSpeeds[2]); //grabs information from the arrays and feeds it to the wheels
+        // wheelBL.set(swerve.wheelAngles[3], swerve.wheelSpeeds[3]); //grabs information from the arrays and feeds it to the wheels
 
   }
 
@@ -217,6 +225,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
+    PrettyLights.AQUA;
+
     flywheel.set(flywheelSpeed);
 
     SmartDashboard.putNumber("limelightX", limelight.getTargetX()); //displays the limelight X "tx" values on SmartDashboard
@@ -225,24 +235,28 @@ public class Robot extends TimedRobot {
     double x1 = joystick.getRawAxis(0); //connects the left and right drive movements to the drive controllers left x-axis
     double x2 = joystick.getRawAxis(4); //connects the spinning drive movements to the drive controllers right x-axis
     double y1 = joystick.getRawAxis(1); //connects the forwards and backwards drive movements to the drive controllers left y-axis
+    // if (Math.abs(y1) > .17) {
+    //   driveSystem.moveForward(y1);
+    // }
 
     //this tells the robot when it should be driverOriented or robotOriented
     if (driverOriented) {
       theta_radians = gyro.getYaw() * Math.PI / 180; //driverOriented
     }else theta_radians = 0; //robotOriented
 
+    driveSystem.moveManual(x1, y1, x2, theta_radians);
     
-    SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians); //grabs the driving variables and theata from Wheel.java
+    // SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians); //grabs the driving variables and theata from Wheel.java
     
-    wheelFL.set(swerve.wheelAngles[0], swerve.wheelSpeeds[0]); //grabs information from the arrays and feeds it to the wheels 
-    wheelFR.set(swerve.wheelAngles[1], swerve.wheelSpeeds[1]); //grabs information from the arrays and feeds it to the wheels 
-    wheelBR.set(swerve.wheelAngles[2], swerve.wheelSpeeds[2]); //grabs information from the arrays and feeds it to the wheels 
-    wheelBL.set(swerve.wheelAngles[3], swerve.wheelSpeeds[3]); //grabs information from the arrays and feeds it to the wheels 
+    // wheelFL.set(swerve.wheelAngles[0], swerve.wheelSpeeds[0]); //grabs information from the arrays and feeds it to the wheels 
+    // wheelFR.set(swerve.wheelAngles[1], swerve.wheelSpeeds[1]); //grabs information from the arrays and feeds it to the wheels 
+    // wheelBR.set(swerve.wheelAngles[2], swerve.wheelSpeeds[2]); //grabs information from the arrays and feeds it to the wheels 
+    // wheelBL.set(swerve.wheelAngles[3], swerve.wheelSpeeds[3]); //grabs information from the arrays and feeds it to the wheels 
 
-    SmartDashboard.putNumber("AngleFL", swerve.wheelAngles[0]); //Displays the wheel angles on the smartdashboard
-    SmartDashboard.putNumber("AngleFR", swerve.wheelAngles[1]); //Displays the wheel angles on the smartdashboard
-    SmartDashboard.putNumber("AngleBR", swerve.wheelAngles[2]); //Displays the wheel angles on the smartdashboard
-    SmartDashboard.putNumber("AngleBL", swerve.wheelAngles[3]); //Displays the wheel angles on the smartdashboard
+    // SmartDashboard.putNumber("AngleFL", swerve.wheelAngles[0]); //Displays the wheel angles on the smartdashboard
+    // SmartDashboard.putNumber("AngleFR", swerve.wheelAngles[1]); //Displays the wheel angles on the smartdashboard
+    // SmartDashboard.putNumber("AngleBR", swerve.wheelAngles[2]); //Displays the wheel angles on the smartdashboard
+    // SmartDashboard.putNumber("AngleBL", swerve.wheelAngles[3]); //Displays the wheel angles on the smartdashboard
 
     //zeros the gyro if you press the Y button
     // if (joystick.getRawButtonPressed(4)) { 
@@ -257,20 +271,18 @@ public class Robot extends TimedRobot {
     }
     SmartDashboard.putBoolean("Driver Oriented", driverOriented);
 
-    if (joystick.getRawButtonPressed(2)){//button B
-      wheelFL.setRelativeEncoderToZero();
-      wheelBL.setRelativeEncoderToZero();
-      wheelBR.setRelativeEncoderToZero();
-      wheelFR.setRelativeEncoderToZero();
+    if (joystick.getRawButtonPressed(Constants.ENCODER_RESET)){//button B
+      // wheelFL.setRelativeEncoderToZero();
+      // wheelBL.setRelativeEncoderToZero();
+      // wheelBR.setRelativeEncoderToZero();
+      // wheelFR.setRelativeEncoderToZero();
     }
 
-    if (operator.getRawButtonPressed(4)){
-      if (climberArmL.get() == Value.kForward && climberArmR.get() == Value.kForward) {
-        climberArmL.set(Value.kReverse);
-        climberArmR.set(Value.kReverse);
-      } else if (climberArmL.get() == Value.kReverse && climberArmR.get() == Value.kReverse) {
-        climberArmL.set(Value.kForward);
-        climberArmR.set(Value.kForward);
+    if (operator.getRawButtonPressed(Constants.CLIMBER_TOGGLE)){
+      if (climber.isClimberForward()) {
+        climber.setClimberReverse();
+      } else if (climber.isClimberReverse()) {
+        climber.setClimberForward();
       }
     }
     if (Math.abs(operator.getRawAxis(1)) < armMotorDeadZone) {
