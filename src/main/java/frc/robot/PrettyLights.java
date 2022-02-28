@@ -110,7 +110,7 @@ public class PrettyLights {
     Spark leds;
  
     public void setLeds(){
-        pattern = color;
-        leds.set(color)
+        //pattern = color;
+        //leds.set(color)
     }
 }
