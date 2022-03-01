@@ -227,7 +227,7 @@ public class Robot extends TimedRobot {
 
     //PrettyLights.AQUA;
 
-    flywheel.set(flywheelSpeed);
+    //flywheel.set(flywheelSpeed);
 
     SmartDashboard.putNumber("limelightX", limelight.getTargetX()); //displays the limelight X "tx" values on SmartDashboard
     SmartDashboard.putNumber("limelightY", limelight.getTargetY()); //displays the limelight Y "ty" values on SmartDashboard
@@ -271,12 +271,12 @@ public class Robot extends TimedRobot {
     }
     SmartDashboard.putBoolean("Driver Oriented", driverOriented);
 
-    if (joystick.getRawButtonPressed(Constants.ENCODER_RESET)){//button B
-      // wheelFL.setRelativeEncoderToZero();
-      // wheelBL.setRelativeEncoderToZero();
-      // wheelBR.setRelativeEncoderToZero();
-      // wheelFR.setRelativeEncoderToZero();
-    }
+    // if (joystick.getRawButtonPressed(Constants.ENCODER_RESET)){//button B
+    //   // wheelFL.setRelativeEncoderToZero();
+    //   // wheelBL.setRelativeEncoderToZero();
+    //   // wheelBR.setRelativeEncoderToZero();
+    //   // wheelFR.setRelativeEncoderToZero();
+    // }
 
     if (operator.getRawButtonPressed(Constants.CLIMBER_TOGGLE)){
       if (climber.isClimberForward()) {
@@ -299,6 +299,14 @@ public class Robot extends TimedRobot {
       } else if (intakeArmL.get() == Value.kReverse && intakeArmR.get() == Value.kReverse) {
         intakeArmL.set(Value.kForward);
         intakeArmR.set(Value.kForward);
+      }
+    }
+    
+    if (operator.getRawButtonPressed(1)) {
+      if (flywheel.get() == flywheelSpeed) {
+        flywheel.set(0);
+      }else if (flywheel.get() == 0) {
+        flywheel.set(flywheelSpeed);
       }
     }
 

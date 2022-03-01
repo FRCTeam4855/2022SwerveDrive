@@ -26,6 +26,14 @@ public class Wheel {
     
     PIDController pid = new PIDController(2, 0, 0); //sets up the PID loop, if you don't know what that is look it up
 
+    public Wheel(int driveControllerID, int steerControllerID, int absolutePort, double offSet1) {
+        driveController = new CANSparkMax(driveControllerID, MotorType.kBrushless); //defining the motor controller for the wheel speeds and its port
+        steerController = new CANSparkMax(steerControllerID, MotorType.kBrushless); //defining the motor controller for the wheel angles and its port
+        absoluteEncoder = new DutyCycleEncoder(absolutePort); //defining the encoder and its port
+        relativeEncoder = driveController.getEncoder();//relativePort); //maybe add another int to Wheel for this, would it just be 0 1 2 and 3 in Robot.java
+        offSet0 = offSet1; //offSet for wheels
+    }
+
     private double getFlippedAngle() { //determines whether the wheel should be flipped or not
         if (isFlipped) {
             return .5;  //approximately the value of one rotation
@@ -86,13 +94,5 @@ public class Wheel {
 
     public void setRelativeEncoderToZero(){
         relativeEncoder.setPosition(0);
-    }
-
-    public Wheel(int driveControllerID, int steerControllerID, int absolutePort, double offSet1) {
-        driveController = new CANSparkMax(driveControllerID, MotorType.kBrushless); //defining the motor controller for the wheel speeds and its port
-        steerController = new CANSparkMax(steerControllerID, MotorType.kBrushless); //defining the motor controller for the wheel angles and its port
-        absoluteEncoder = new DutyCycleEncoder(absolutePort); //defining the encoder and its port
-        relativeEncoder = driveController.getEncoder();//relativePort); //maybe add another int to Wheel for this, would it just be 0 1 2 and 3 in Robot.java
-        offSet0 = offSet1; //offSet for wheels
     }
 }
