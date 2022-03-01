@@ -105,12 +105,7 @@ public class PrettyLights {
     final static double GRAY = .95;
     final static double DARK_GRAY = .97;
     final static double BLACK = .99;
-
+// C1 is purple and C2 is gold
     double pattern = C1_AND_C2_SINELON;
-    Spark leds;
- 
-    public void setLeds(){
-        //pattern = color;
-        //leds.set(color)
-    }
+    
 }

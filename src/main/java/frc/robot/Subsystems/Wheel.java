@@ -73,7 +73,7 @@ public class Wheel {
 
         double desiredSpeed = pid.calculate(absoluteEncoder.get(), desiredAngle);
         SmartDashboard.putNumber("WheelSpeed", desiredSpeed); //displays the wanted speed on SmartDashboard
-        steerController.set(MathUtil.clamp(desiredSpeed, -0.1, 0.1));
+        steerController.set(MathUtil.clamp(desiredSpeed, -0.4, 0.4));
     }
 
 
@@ -94,5 +94,9 @@ public class Wheel {
 
     public void setRelativeEncoderToZero(){
         relativeEncoder.setPosition(0);
+    }
+
+    public double getAbsoluteValue() {
+        return absoluteEncoder.get();
     }
 }

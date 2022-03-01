@@ -11,5 +11,5 @@ public class Constants {
 
 
     //Operator Mappings
-    public static final int CLIMBER_TOGGLE = 4;
+    public static final int CLIMBER_TOGGLE = 3;
 }

@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Commands.SwerveDriveMoveForward;
 import frc.robot.Commands.SwerveDriveStop;
+import frc.robot.Flywheel.Phase;
 import frc.robot.Subsystems.Climber;
 import frc.robot.Subsystems.GenericDriveSystem;
 import frc.robot.Subsystems.Swerve;
@@ -51,7 +52,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 public class Robot extends TimedRobot { 
  
   double theta_radians; //theta_radians is difference the angle the robot is at, and the zerod angle
-  boolean driverOriented = false; //where the robot is in driver oriented or not
+  boolean driverOriented = true; //where the robot is in driver oriented or not
   boolean climberForward = false;
   double deviceIDFL = 1;
 
@@ -69,6 +70,8 @@ public class Robot extends TimedRobot {
 
   static Limelight limelight = new Limelight();
 
+  Spark lights = new Spark(8); //this is not the right port
+
   //try using xbox controller instead
   Joystick joystick = new Joystick(0); //defines the driving controller
   Joystick operator = new Joystick(1);  
@@ -83,7 +86,7 @@ public class Robot extends TimedRobot {
 
   Spark intake = new Spark(0);
   Spark index = new Spark(1);
-  CANSparkMax flywheel = new CANSparkMax(9, MotorType.kBrushless);
+  Flywheel flywheel = new Flywheel(9);
 
   AHRS gyro = new AHRS(SPI.Port.kMXP); //defines the gyro
 
@@ -100,10 +103,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    climber.setClimberForward();
-    intakeArmL.set(Value.kForward);
-    intakeArmR.set(Value.kForward);
-    //flywheel.set(.5);
+    // Don't use these here! Use them in autonomousInit or teleopInit
+    //climber.setClimberForward();
+    //intakeArmL.set(Value.kForward);
+    //intakeArmR.set(Value.kForward);
 
     // CameraServer.startAutomaticCapture();
     // CvSink cvSink = CameraServer.getVideo();
@@ -126,32 +129,21 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    // SmartDashboard.putNumber("Encoder FL", wheelFL.absoluteEncoder.get()); //Displays Front Left Wheel Encoder Values
-    // SmartDashboard.putNumber("Encoder BL", wheelBL.absoluteEncoder.get()); //Displays Back Left Wheel Encoder Values
-    // SmartDashboard.putNumber("Encoder BR", wheelBR.absoluteEncoder.get()); //Displays Back Right Wheel Encoder Values
-    // SmartDashboard.putNumber("Encoder FR", wheelFR.absoluteEncoder.get()); //Displays Front Right Wheel Encoder Values
+    SmartDashboard.putNumber("Encoder FL", driveSystem.wheelFL.getAbsoluteValue()); //Displays Front Left Wheel Encoder Values
+    SmartDashboard.putNumber("Encoder BL", driveSystem.wheelBL.getAbsoluteValue()); //Displays Back Left Wheel Encoder Values
+    SmartDashboard.putNumber("Encoder BR", driveSystem.wheelBR.getAbsoluteValue()); //Displays Back Right Wheel Encoder Values
+    SmartDashboard.putNumber("Encoder FR", driveSystem.wheelFR.getAbsoluteValue()); //Displays Front Right Wheel Encoder Values
     SmartDashboard.putNumber("RelativeEncoder FL", driveSystem.getEncoderFL());
     SmartDashboard.putNumber("RelativeEncoder BL", driveSystem.getEncoderBL());
     SmartDashboard.putNumber("RelativeEncoder BR", driveSystem.getEncoderBR());
     SmartDashboard.putNumber("RelativeEncoder FR", driveSystem.getEncoderFR());
 
+    SmartDashboard.putBoolean("Driver Oriented", driverOriented);
     SmartDashboard.putNumber("Gyro Get Raw", gyro.getYaw()); //pulls gyro values
-
-    if (intakeArmL.get() == Value.kForward) {
-      intake.set(1);
-    }
+    SmartDashboard.putNumber("Flywheel velocity", flywheel.getFlywheelVelocity());
   }
-  /**
-   * This autonomous (along with the chooser code above) shows how to select
-   * between different autonomous modes using the dashboard. The sendable
-   * chooser code works with the Java SmartDashboard. If you prefer the
-   * LabVIEW Dashboard, remove all of the chooser code and uncomment the
-   * getString line to get the auto name from the text box below the Gyro
-   *
-   * <p>You can add additional auto modes by adding additional comparisons to
-   * the switch structure below with additional strings. If using the
-   * SendableChooser make sure to add them to the chooser code above as well.
-   */
+
+
   @Override
   public void autonomousInit() {
 
@@ -176,17 +168,17 @@ public class Robot extends TimedRobot {
       }
     double elapsedTime = (System.nanoTime() - startTime) / 1000000000;*/ //sets elapsedTime
 
- /**
-   * This function is called periodically during autonomous.
-   */
+
+
+
   @Override
   public void autonomousPeriodic() {
     CommandScheduler.getInstance().run();
    
     //these values are inverted so negative and positive are reversed
-      double x1 = 0; //defines left and right movement for auton
-      double x2 = 0; //defines spinning movement for auton
-      double y1 = 0; //defines forward and backward movement for auton
+    double x1 = 0; //defines left and right movement for auton
+    double x2 = 0; //defines spinning movement for auton
+    double y1 = 0; //defines forward and backward movement for auton
 
     switch (m_autoSelected) {
       //second auton code
@@ -219,6 +211,11 @@ public class Robot extends TimedRobot {
 
   }
 
+  @Override
+  public void teleopInit() {
+    flywheel.killFlywheel();
+  }
+
   /**
    * This function is called periodically during operator control.
    */
@@ -232,9 +229,9 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("limelightX", limelight.getTargetX()); //displays the limelight X "tx" values on SmartDashboard
     SmartDashboard.putNumber("limelightY", limelight.getTargetY()); //displays the limelight Y "ty" values on SmartDashboard
 
-    double x1 = joystick.getRawAxis(0); //connects the left and right drive movements to the drive controllers left x-axis
-    double x2 = joystick.getRawAxis(4); //connects the spinning drive movements to the drive controllers right x-axis
-    double y1 = joystick.getRawAxis(1); //connects the forwards and backwards drive movements to the drive controllers left y-axis
+    double x1 = -joystick.getRawAxis(0); //connects the left and right drive movements to the drive controllers left x-axis
+    double x2 = -joystick.getRawAxis(4); //connects the spinning drive movements to the drive controllers right x-axis
+    double y1 = -joystick.getRawAxis(1); //connects the forwards and backwards drive movements to the drive controllers left y-axis
     // if (Math.abs(y1) > .17) {
     //   driveSystem.moveForward(y1);
     // }
@@ -245,18 +242,6 @@ public class Robot extends TimedRobot {
     }else theta_radians = 0; //robotOriented
 
     driveSystem.moveManual(x1, y1, x2, theta_radians);
-    
-    // SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians); //grabs the driving variables and theata from Wheel.java
-    
-    // wheelFL.set(swerve.wheelAngles[0], swerve.wheelSpeeds[0]); //grabs information from the arrays and feeds it to the wheels 
-    // wheelFR.set(swerve.wheelAngles[1], swerve.wheelSpeeds[1]); //grabs information from the arrays and feeds it to the wheels 
-    // wheelBR.set(swerve.wheelAngles[2], swerve.wheelSpeeds[2]); //grabs information from the arrays and feeds it to the wheels 
-    // wheelBL.set(swerve.wheelAngles[3], swerve.wheelSpeeds[3]); //grabs information from the arrays and feeds it to the wheels 
-
-    // SmartDashboard.putNumber("AngleFL", swerve.wheelAngles[0]); //Displays the wheel angles on the smartdashboard
-    // SmartDashboard.putNumber("AngleFR", swerve.wheelAngles[1]); //Displays the wheel angles on the smartdashboard
-    // SmartDashboard.putNumber("AngleBR", swerve.wheelAngles[2]); //Displays the wheel angles on the smartdashboard
-    // SmartDashboard.putNumber("AngleBL", swerve.wheelAngles[3]); //Displays the wheel angles on the smartdashboard
 
     //zeros the gyro if you press the Y button
     // if (joystick.getRawButtonPressed(4)) { 
@@ -269,15 +254,28 @@ public class Robot extends TimedRobot {
       driverOriented = true;
       }else{driverOriented = false;}
     }
-    SmartDashboard.putBoolean("Driver Oriented", driverOriented);
 
-    // if (joystick.getRawButtonPressed(Constants.ENCODER_RESET)){//button B
-    //   // wheelFL.setRelativeEncoderToZero();
-    //   // wheelBL.setRelativeEncoderToZero();
-    //   // wheelBR.setRelativeEncoderToZero();
-    //   // wheelFR.setRelativeEncoderToZero();
-    // }
+    //intake
+    if (Math.abs(operator.getRawAxis(3)) > .15) {
+      intake.set(-operator.getRawAxis(3) * .75);
+    } else if (Math.abs(operator.getRawAxis(2)) > .15) {
+      intake.set(operator.getRawAxis(2) * .75);
+    } else intake.set(0);
 
+    //intake arm pneumatics
+    if (operator.getRawButtonPressed(2)){
+      if (intakeArmL.get() == Value.kForward && intakeArmR.get() == Value.kForward) {
+        intakeArmL.set(Value.kReverse);
+        intakeArmR.set(Value.kReverse);
+      } else if (intakeArmL.get() == Value.kReverse && intakeArmR.get() == Value.kReverse) {
+        intakeArmL.set(Value.kForward);
+        intakeArmR.set(Value.kForward);
+      }
+    }
+
+
+
+    //climber stuff
     if (operator.getRawButtonPressed(Constants.CLIMBER_TOGGLE)){
       if (climber.isClimberForward()) {
         climber.setClimberReverse();
@@ -292,34 +290,36 @@ public class Robot extends TimedRobot {
     armMotorL.set(operator.getRawAxis(1));
     armMotorR.set(operator.getRawAxis(1));
 
-    if (operator.getRawButtonPressed(7)){
-      if (intakeArmL.get() == Value.kForward && intakeArmR.get() == Value.kForward) {
-        intakeArmL.set(Value.kReverse);
-        intakeArmR.set(Value.kReverse);
-      } else if (intakeArmL.get() == Value.kReverse && intakeArmR.get() == Value.kReverse) {
-        intakeArmL.set(Value.kForward);
-        intakeArmR.set(Value.kForward);
-      }
-    }
-    
+
+    // Flywheel
+    SmartDashboard.putString("flywheel state", flywheel.getCurrentPhase() == Phase.OFF ? "Off" : flywheel.getCurrentPhase() == Phase.SPEED_UP ? "Speed Up" : "Lock In");
     if (operator.getRawButtonPressed(1)) {
-      if (flywheel.get() == flywheelSpeed) {
-        flywheel.set(0);
-      }else if (flywheel.get() == 0) {
-        flywheel.set(flywheelSpeed);
-      }
+      if (flywheel.getCurrentPhase() == Phase.OFF) {
+        flywheel.setFlywheelSpeed(4200);
+      } else flywheel.killFlywheel();
+     }
+
+     if (flywheel.isRunning()) {
+       if (flywheel.setFlywheelSpeed(flywheel.getFlywheelSetpoint())) {
+         // We are OK to fire
+
+       } else {
+         // Yeah we're not OK to fire
+
+       }
+     }
+     
+
+    if (operator.getPOV() == 90){
+      flywheel.setFlywheelSpeed(flywheel.getFlywheelSetpoint() + 1);
+    }
+    if (operator.getPOV() == 270){
+      flywheel.setFlywheelSpeed(flywheel.getFlywheelSetpoint() - 1);
     }
 
-    if (operator.getRawButton(2)){
-      index.set(1);
-    }
 
-    if (operator.getRawButtonPressed(6)){
-      flywheelSpeed = flywheelSpeed + .1;
-    }
-    if (operator.getRawButtonPressed(5)){
-      flywheelSpeed = flywheelSpeed - .1;
-    }
+    // Index
+    index.set(Math.abs(operator.getRawAxis(5)) > .1 ? -operator.getRawAxis(5) * .5 : 0 );
   }
 
   

@@ -1,9 +1,8 @@
 package frc.robot;
 
-import com.revrobotics.CANEncoder;
-import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ControlType;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
@@ -15,27 +14,25 @@ public class Flywheel {
     private boolean isRunning = false;          // whether or not the flywheel is running
     private final int MAX_SPEEDUP_TICKS = 50;   // the flywheel will have 50 ticks to increase the speed to roughly where it needs to be via percent output
     private final int ACCEPTABLE_ERROR = 70;    // the acceptable error to reasonably state that the shooter is ready to shoot
-    private enum Phase {
+    public enum Phase {
         OFF, SPEED_UP, LOCK_IN
     }
     private Phase currentPhase = Phase.OFF;
-    double kP = .00081;     // originally .00044
+    double kP = .00014;     // originally .00044
     double kI = 0;
     double kD = .0034;
     double kF = .000202;    // originally .000173
 
     // Define hardware
     private CANSparkMax flywheel; 
-    private CANPIDController PID;
-    private CANEncoder encoder;
+    private SparkMaxPIDController PID;
+    private RelativeEncoder encoder;
 
     /**
      * Constructs the Shooter class.
      * @param sparkMaxId the ID of the CAN Spark Max that the flywheel runs off of
-     * @param feederId the PWM ID of the feeder motor controller
-     * @param pivotId the CAN ID of the Talon SRX that runs the pivot
      */
-    public Flywheel(int sparkMaxId, int feederId, int pivotId) {
+    public Flywheel(int sparkMaxId) {
         flywheel = new CANSparkMax(sparkMaxId, MotorType.kBrushless);
         encoder = flywheel.getEncoder();
         PID = flywheel.getPIDController();
@@ -52,7 +49,7 @@ public class Flywheel {
      * @return true or false depending on the speed has been locked in
      */
     public boolean setFlywheelSpeed(double setpoint) {
-        setpoint = MathUtil.clamp(setpoint, 0, 4500);
+        setpoint = MathUtil.clamp(setpoint, 0, 5300);
         velocitySetpoint = setpoint;
         isRunning = true;
         switch (currentPhase) {
@@ -75,7 +72,7 @@ public class Flywheel {
         }
         // TODO getting consistent error messages: [CAN SPARK MAX] timed out while waiting for Periodic Status 1, Periodic Status 1
         if (speedUpTime > -1 && currentPhase == Phase.SPEED_UP) {
-            double percentOutput = MathUtil.clamp(-((setpoint / 5100) + .015), 0, 1); // formerly (setpoint / 5100) - .025
+            double percentOutput = MathUtil.clamp(((setpoint / 5100) + .015), 0, 1); // formerly (setpoint / 5100) - .025
             flywheel.set(percentOutput);
             speedUpTime --;
             if (speedUpTime <= 0) {
@@ -84,8 +81,8 @@ public class Flywheel {
             }
         }
         if (currentPhase == Phase.LOCK_IN) {
-            PID.setReference(-setpoint, ControlType.kVelocity);
-            if (Math.abs(setpoint + encoder.getVelocity()) < ACCEPTABLE_ERROR) return true; else return false;
+            PID.setReference(setpoint, CANSparkMax.ControlType.kVelocity);
+            return (Math.abs(setpoint + encoder.getVelocity()) < ACCEPTABLE_ERROR);
         }
         return false;
     }
@@ -110,14 +107,14 @@ public class Flywheel {
     }
 
     /**
-     * Takes a distance from the lidar sensor and converts it to a velocity setpoint.
-     * This was calculated based on the 2020 game and needs to be updated. Don't use!
-     * @param dist the distance in inches
+     * Takes a distance in feet and converts it to a velocity
+     * This hasn't been tested yet proceed with caution
+     * @param dist the distance in feet
      * @return a double of the setpoint
      */
     public double getVelocityFromDistance(double dist) {
         if (dist < 90 || dist > 450) return getFlywheelVelocity(); // probably not valid, just use previous position
-        return -0.008 * Math.pow(dist, 2) + 7.223 * dist + 1686;
+        return 5.4959 * Math.pow(dist, 2) + 60.1515 * dist + 1833.9447;
     }
 
     /**
@@ -150,6 +147,10 @@ public class Flywheel {
      */
     public boolean isRunning() {
         return isRunning;
+    }
+
+    public Phase getCurrentPhase() {
+        return currentPhase;
     }
 
 }

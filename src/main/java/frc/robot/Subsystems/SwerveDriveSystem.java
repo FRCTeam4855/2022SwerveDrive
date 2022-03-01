@@ -1,14 +1,13 @@
 package frc.robot.Subsystems;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SwerveDriveSystem extends SubsystemBase implements GenericDriveSystem{
 
-    Wheel wheelFL = new Wheel(1, 2, 0, -0.758); //defines the front left wheel
-    Wheel wheelBL = new Wheel(3, 4, 1, -0.454); //defines the back left wheel
-    Wheel wheelBR = new Wheel(5, 6, 2, -0.143); //defines the back right wheel
-    Wheel wheelFR = new Wheel(7, 8, 3, -0.077); //defines the front right wheel
+    public Wheel wheelFL = new Wheel(1, 2, 0, -0.225); //defines the front left wheel
+    public Wheel wheelBL = new Wheel(3, 4, 1, -0.053); //defines the back left wheel
+    public Wheel wheelBR = new Wheel(5, 6, 2, -0.337); //defines the back right wheel
+    public Wheel wheelFR = new Wheel(7, 8, 3, 0.153); //defines the front right wheel
 
     private void moveWheels(SwerveOutput swerve) {
         wheelFL.set(swerve.wheelAngles[0], swerve.wheelSpeeds[0]); //grabs information from the arrays and feeds it to the wheels 
@@ -30,6 +29,22 @@ public class SwerveDriveSystem extends SubsystemBase implements GenericDriveSyst
     }
 
     public double getEncoderFR() {
+        return wheelFR.getDriveRelativeEncoderValue();
+    }
+
+    public double getAEncoderFL() {
+        return wheelFL.getDriveRelativeEncoderValue();
+    }
+
+    public double getAEncoderBL() {
+        return wheelBL.getDriveRelativeEncoderValue();
+    }
+
+    public double getAEncoderBR() {
+        return wheelBR.getDriveRelativeEncoderValue();
+    }
+
+    public double getAEncoderFR() {
         return wheelFR.getDriveRelativeEncoderValue();
     }
 
