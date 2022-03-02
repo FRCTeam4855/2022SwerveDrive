@@ -8,10 +8,6 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
-
-// import edu.wpi.first.cameraserver.CameraServer;
-// import edu.wpi.first.cscore.CvSink;
-// import edu.wpi.first.cscore.CvSource;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -23,24 +19,10 @@ import frc.robot.Commands.SwerveDriveMoveForward;
 import frc.robot.Commands.SwerveDriveStop;
 import frc.robot.Flywheel.Phase;
 import frc.robot.Subsystems.Climber;
-import frc.robot.Subsystems.GenericDriveSystem;
-import frc.robot.Subsystems.Swerve;
 import frc.robot.Subsystems.SwerveDriveSystem;
-import frc.robot.Subsystems.SwerveOutput;
-import frc.robot.Subsystems.Wheel;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
-
-//import edu.wpi.first.math.MathUtil;
-//import com.revrobotics.CANSparkMax;
-//import com.revrobotics.CANSparkMaxLowLevel.MotorType; 
-//import com.revrobotics.RelativeEncoder;
-
-//import edu.wpi.first.wpilibj.XboxController;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -65,14 +47,10 @@ public class Robot extends TimedRobot {
   double armMotorSpeedLimit = 1;
   double armMotorDeadZone = .02;
   double flywheelSpeed = .5;
-  //driverController = new CANSparkMax(deviceIDFL, MotorType.kBrushless);
-  //RelativeEncoder encoder;
 
   static Limelight limelight = new Limelight();
-
   Spark lights = new Spark(8); //this is not the right port
 
-  //try using xbox controller instead
   Joystick joystick = new Joystick(0); //defines the driving controller
   Joystick operator = new Joystick(1);  
 
@@ -90,12 +68,13 @@ public class Robot extends TimedRobot {
 
   AHRS gyro = new AHRS(SPI.Port.kMXP); //defines the gyro
 
-  // Wheel wheelFL = new Wheel(1, 2, 0, -0.758); //defines the front left wheel
-  // Wheel wheelBL = new Wheel(3, 4, 1, -0.454); //defines the back left wheel
-  // Wheel wheelBR = new Wheel(5, 6, 2, -0.143); //defines the back right wheel
-  // Wheel wheelFR = new Wheel(7, 8, 3, -0.077); //defines the front right wheel
-//Wheel Values: driveControllerID, steerControllerID, absolutePort(encoder), offSet1
+  // Wheel Values: driveControllerID, steerControllerID, absolutePort(encoder), offSet1
   SwerveDriveSystem driveSystem = new SwerveDriveSystem();
+
+  
+
+
+
 
   /**
    * This function is run when the robot is first started up and should be
@@ -149,16 +128,11 @@ public class Robot extends TimedRobot {
 
     m_autoSelected = m_chooser.getSelected(); //conects the auton options and the switch method where the autons are written
     SmartDashboard.putString("auton selected", m_autoSelected); //displays which auton is currently running
-      // wheelFL.setRelativeEncoderToZero();
-      // wheelBL.setRelativeEncoderToZero();
-      // wheelBR.setRelativeEncoderToZero();
-      // wheelFR.setRelativeEncoderToZero();
-      driveSystem.resetRelativeEncoders();
-      gyro.reset();
-      CommandScheduler.getInstance().setDefaultCommand(driveSystem, new SwerveDriveStop(driveSystem));
-      SwerveDriveMoveForward swerveDriveMoveForward = new SwerveDriveMoveForward(driveSystem);
-      swerveDriveMoveForward.schedule();
-
+    driveSystem.resetRelativeEncoders();
+    gyro.reset();
+    CommandScheduler.getInstance().setDefaultCommand(driveSystem, new SwerveDriveStop(driveSystem));
+    SwerveDriveMoveForward swerveDriveMoveForward = new SwerveDriveMoveForward(driveSystem);
+    swerveDriveMoveForward.schedule();
   }
 
   //goes in autonomousPeriodic when using elapsedTime based code
@@ -248,7 +222,8 @@ public class Robot extends TimedRobot {
     if (joystick.getRawButtonPressed(Constants.GYRO_RESET)) { 
       gyro.reset();
     }
-  //This turns driver oriented on and off when x is pressed
+
+    //This turns driver oriented on and off when x is pressed
     if (joystick.getRawButtonPressed(3)){
       if (driverOriented == false){
       driverOriented = true;
