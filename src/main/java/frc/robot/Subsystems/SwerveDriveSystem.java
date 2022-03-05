@@ -1,6 +1,7 @@
 package frc.robot.Subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class SwerveDriveSystem extends SubsystemBase implements GenericDriveSystem{
 
@@ -55,6 +56,11 @@ public class SwerveDriveSystem extends SubsystemBase implements GenericDriveSyst
       wheelBR.setRelativeEncoderToZero();
       wheelFR.setRelativeEncoderToZero();
     }
+
+    public double getRelativeEncoderFT() {
+        return Math.abs(wheelFL.getDriveRelativeEncoderValue()) / Constants.RELATIVE_ENC_TO_FT;
+    }
+    
     public void moveManual(double x1, double y1, double x2, double theta_radians) {
         SwerveOutput swerve = Swerve.convertControllerToSwerve(x1, y1, x2, theta_radians);
         this.moveWheels(swerve);

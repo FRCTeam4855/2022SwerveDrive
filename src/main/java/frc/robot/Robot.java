@@ -12,24 +12,24 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+//import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Commands.SwerveDriveMoveForward;
-import frc.robot.Commands.SwerveDriveStop;
+// import edu.wpi.first.wpilibj2.command.CommandScheduler;
+// import frc.robot.Commands.SwerveDriveMoveForward;
+// import frc.robot.Commands.SwerveDriveStop;
 import frc.robot.Flywheel.Phase;
 import frc.robot.Subsystems.Climber;
 import frc.robot.Subsystems.IntakeArmPneumatics;
 import frc.robot.Subsystems.SwerveDriveSystem;
-import frc.robot.Constants;
+//import frc.robot.Constants;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
+// import edu.wpi.first.wpilibj.DoubleSolenoid;
+// import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
 /**
@@ -48,13 +48,13 @@ public class Robot extends TimedRobot {
   private static final String kAuton1 = "Auton Mode 1"; //This is the first or default autonomous routine
   private static final String kAuton2 = "Auton Mode 2"; //Drives forward, picks up a ball, and fires both
   private static final String kAuton3 = "Auton Mode 3"; //Drives forward and stops
-  private static final String kAuton4 = "Auton Mode 4"; //Empty right now
 
   private String m_autoSelected; //This selects between the two autonomous
   public SendableChooser<String> m_chooser = new SendableChooser<>(); //creates the ability to switch between autons on SmartDashboard
 
   static Limelight limelight = new Limelight();
-  Spark lights = new Spark(8); //this is not the right port
+  
+  PrettyLights leds = new PrettyLights();
 
   Joystick joystick = new Joystick(0);
   Joystick operator = new Joystick(1);  
@@ -157,16 +157,16 @@ public class Robot extends TimedRobot {
       // drive forward
       case kAuton1: 
       default: 
-      if (Math.abs(driveSystem.wheelFL.getDriveRelativeEncoderValue()) / Constants.RELATIVE_ENC_TO_FT < 10) {//74 is 10 ft
+      if (driveSystem.getRelativeEncoderFT() < 10) {//74 is 10 ft
         autoy1 = .4;
       } else {
         autoy1 = 0;
       }
       break;
 
-      // Drive forward, pick up a cargo, fire both
+      // Drive forward, fire cargo
       case kAuton2:
-        if (Math.abs(driveSystem.wheelFL.getDriveRelativeEncoderValue()) * Constants.RELATIVE_ENC_TO_FT < 4) {
+        if (driveSystem.getRelativeEncoderFT() < 4) {
           autoy1 = .4;
           intake.set(.75);
         } else {
@@ -178,7 +178,20 @@ public class Robot extends TimedRobot {
         }
         break;
 
+      // Drive forward, pick up a cargo, fire both
       case kAuton3:
+      intake.set(.75);
+      if (driveSystem.getRelativeEncoderFT() < 4) {
+        autoy1 = .4;
+        intake.set(.75);
+      } else {
+        autoy1 = 0;
+        if (flywheel.setFlywheelSpeed(3400)) {
+          // Fire cargo
+          index.set(-.5);
+        }
+      }
+
         break;
       
       // if ((gyro.getYaw() + 180) > 300 && autonsub1 == 0){
@@ -299,13 +312,17 @@ public class Robot extends TimedRobot {
     if (operator.getPOV() == 270){
       flywheel.setFlywheelSpeed(flywheel.getFlywheelSetpoint() - 1);
     }
-
     // Index
-    index.set(Math.abs(operator.getRawAxis(5)) > .1 ? -operator.getRawAxis(5) * .5 : 0 );
+    if (operator.getRawAxis(5) > .17) {
+      index.set(-.5);
+    }
+
+    if (operator.getRawAxis(5) < -.17) {
+      index.set(.5);
+    }
+  //   index.set(Math.abs(operator.getRawAxis(5)) > .1 ? -operator.getRawAxis(5) * .5 : 0 );
+  // }
   }
-
-  
-
   /**
    * This function is called periodically during test mode.
    */
