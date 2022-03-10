@@ -1,16 +1,16 @@
 package frc.robot.Subsystems;
 
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
+//import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
 //import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
 public class PrettyLights {
 
-    //i am causing problems on purpose
-    final static double RAINBOW_RAINBOWPALETTE = -.99;
-    final static double RAINBOW_PARTYPALETTE = -.97;
-    final static double RAINBOW_OCEANPALETTE = -.95;
-    final static double RAINBOW_LAVAPALETTE = -.93;
+  
+    public final static double RAINBOW_RAINBOWPALETTE = -.99;
+    public final static double RAINBOW_PARTYPALETTE = -.97;
+    public final static double RAINBOW_OCEANPALETTE = -.95;
+    public final static double RAINBOW_LAVAPALETTE = -.93;
     final static double RAINBOW_FORESTPALETTE = -.91;
     final static double RAINBOW_GLITTER = -.89;
     final static double CONFETTI = -.87;
@@ -22,7 +22,7 @@ public class PrettyLights {
     final static double SINELON_OCEANPALETTE = -.75;
     final static double SINELON_LAVAPALETTE = -.73;
     final static double SINELON_FORESTPALETTE = -.71;
-    final static double BPM_RAINBOWPALETTE = -.69;
+    public final static double BPM_RAINBOWPALETTE = -.69;
     final static double BPM_PARTYPALETTE = -.67;
     final static double BPM_OCEANPALETTE = -.65;
     final static double BPM_LAVAPALETTE = -.63;
@@ -64,7 +64,7 @@ public class PrettyLights {
     final static double C1_BREATH_SLOW = .09;
     final static double C1_BREATH_FAST = .11;
     final static double C1_SHOT = .13;
-    final static double C1_STROBE = .15;
+    public final static double C1_STROBE = .15;
     final static double C2_END_TO_END_BLEND_TO_BLACK = .17;
     final static double C2_LARSONSCAN = .19;
     final static double C2_LIGHTCHASE = .21;
@@ -84,32 +84,33 @@ public class PrettyLights {
     final static double C1_AND_C2_NO_BLEND = .49;
     final static double C1_AND_C2_TWINKLES = .51;
     final static double C1_AND_C2_COLOR_WAVES = .53;
-    final static double C1_AND_C2_SINELON = .55;
+    public final static double C1_AND_C2_SINELON = .55;
     final static double HOT_PINK = .57;
     final static double DARK_RED = .59;
     final static double RED = .61;
     final static double RED_ORANGE = .63;
     final static double ORANGE = .65;
-    final static double GOLD = .67;
+    public final static double GOLD = .67;
     final static double YELLOW = .69;
-    final static double LAWN_GREEN = .71;
+    public final static double LAWN_GREEN = .71;
     final static double LIME = .73;
     final static double DARK_GREEN = .75;
     final static double GREEN = .77;
     final static double BLUE_GREEN = .79;
     final static double AQUA = .81;
-    final static double SKY_BLUE = .83;
+    public final static double SKY_BLUE = .83;
     final static double DARK_BLUE = .85;
     final static double BLUE = .87;
     final static double BLUE_VIOLET = .89;
     final static double VIOLET = .91;
-    final static double WHITE = .93;
+    public final static double WHITE = .93;
     final static double GRAY = .95;
     final static double DARK_GRAY = .97;
-    final static double BLACK = .99;
-// C1 is purple and C2 is gold
+    public final static double BLACK = .99;
     double pattern = C1_AND_C2_SINELON;
-    Spark leds = new Spark(8); // this is not the right port
+
+// C1 is purple and C2 is gold
+    // double pattern = C1_AND_C2_SINELON;
     
     /**
      * Creates an instance of the Blinkin driver.
@@ -123,17 +124,17 @@ public class PrettyLights {
      * Sets the LEDs to a certain color. This function won't work when the robot is disabled.
      * @param color the color to set the lights to, coordinated with the constants set as static in the Blinkin class
      */
-    public void setLEDs(double color) {
-        pattern = color;
-        leds.set(color); 
-    }
+    // public void setLEDs(double color) {
+    //     pattern = color;
+    //     leds.set(color); 
+    // }
 
     /**
      * Gets the current display pattern of the LEDs.
      * @return a number between -1 and 1 corresponding to the current pattern
      */
-    public double getLEDs() {
-        return pattern;
-    }
+    // public double getLEDs() {
+    //     return pattern;
+    // }
     
 }

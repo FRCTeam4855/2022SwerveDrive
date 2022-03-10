@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
-public class Climber {
+public class ClimberPNU {
     private DoubleSolenoid climberArm = new DoubleSolenoid(10, PneumaticsModuleType.REVPH, 0, 1);
 
 
