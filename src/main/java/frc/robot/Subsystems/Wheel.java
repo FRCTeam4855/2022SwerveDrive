@@ -9,8 +9,14 @@ import edu.wpi.first.math.MathUtil;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder; //CANEncoder
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import static frc.robot.Constants.*;
+
+import edu.wpi.first.wpilibj.Joystick;
 
 public class Wheel {
+
+    Joystick joystick = new Joystick(0);
 
     CANSparkMax driveController; //defines the motor controller for the wheel speeds
     CANSparkMax steerController; //defines the motor cotrollers for the wheel angles
@@ -75,12 +81,18 @@ public class Wheel {
         steerController.set(MathUtil.clamp(desiredSpeed, -0.4, 0.4));
     }
 
-
-
-    private void setSpeed(double motorSpeed) {
+    public void setSpeed(double motorSpeed) {
         if (isFlipped) motorSpeed *= -1; //this the speed the wheels will flip at, just don't change it
-        driveController.set(motorSpeed * 0.5); //this is where you change the speed of the wheels
+        driveController.set(motorSpeed * DRIVE_INIT_SPD); //this is where you change the speed of the wheels
     }
+
+    // private void setSpeed(double motorSpeed) {
+    //     if (isFlipped) motorSpeed *= -1; //this the speed the wheels will flip at, just don't change it
+    //     if (joystick.getRawButton(6)) {
+    //         driveController.set(motorSpeed * Constants.LOW_GOAL_SPEED); 
+    //     }
+    // else driveController.set(motorSpeed * Constants.HIGH_GOAL_SPEED); //this is where you change the speed of the wheels
+    // }
 
     public void set(double setAngle, double speed) {
         turnToAngle(setAngle);

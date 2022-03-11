@@ -5,6 +5,8 @@ public class Constants {
     public static final double JOYSTK_DZONE = .17; //global deadzone for all controllers
     public static final double LOW_GOAL_SPEED = 1200;
     public static final double HIGH_GOAL_SPEED = 4200;
+    public static final double DRIVE_INIT_SPD = 0.75; //multiplier
+    public static final double DRIVE_SLOW_SPD = 0.1; //multiplier
 
     // Conversions +++++++++
     public static final double RELATIVE_ENC_TO_FT = 7.4; //0.660715;//7.928591; //0.03666658; // converts relative encoder units on neo to inches
@@ -29,6 +31,7 @@ public class Constants {
     public static final int GYRO_RESET = 4;
     public static final int ENCODER_RESET = 2;
     public static final int ORIENTATION_TOGGLE = 3; 
+    public static final int DR_SPD_LIMITER = 6;
 
 
 

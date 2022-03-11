@@ -8,8 +8,13 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSink;
+import edu.wpi.first.cscore.CvSource;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.math.controller.PIDController;
+// import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
 //import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -18,17 +23,17 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Subsystems.ClimberMotor;
 import frc.robot.Subsystems.ClimberPNU;
 import frc.robot.Subsystems.Flywheel;
-
 import static frc.robot.Constants.*;
 import frc.robot.Subsystems.IntakeArmPneumatics;
 import frc.robot.Subsystems.PrettyLights;
 import frc.robot.Subsystems.SwerveDriveSystem;
+import frc.robot.Subsystems.Wheel;
 import frc.robot.Subsystems.Flywheel.Phase;
-import edu.wpi.first.math.controller.HolonomicDriveController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+// import edu.wpi.first.math.controller.HolonomicDriveController;
+// import edu.wpi.first.math.controller.ProfiledPIDController;
+// import edu.wpi.first.math.geometry.Translation2d;
+// import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+// import edu.wpi.first.math.trajectory.TrapezoidProfile;
 // import edu.wpi.first.wpilibj.DoubleSolenoid;
 // import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
@@ -64,6 +69,9 @@ public class Robot extends TimedRobot {
   Spark index = new Spark(1);
   Flywheel flywheel = new Flywheel(9);
 
+  UsbCamera frontCamera;
+  UsbCamera climbCamera;
+
   public Spark leds = new Spark(8);
   double pattern = PrettyLights.C1_STROBE;
     public void setLEDs(double color) {
@@ -77,19 +85,19 @@ public class Robot extends TimedRobot {
   SwerveDriveSystem driveSystem = new SwerveDriveSystem();
 
   // Autonomous kinematics/path-following
-  SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
-    new Translation2d(-11.5, 11.5),
-    new Translation2d(-11.5, -11.5),
-    new Translation2d(-11.5, 11.5),
-    new Translation2d(11.5, -11.5)
-  );
-  HolonomicDriveController holonomicController = new HolonomicDriveController(
-    new PIDController(1, 0, 0), 
-    new PIDController(1, 0, 0),
-    new ProfiledPIDController(1, 0, 0, 
-      new TrapezoidProfile.Constraints(6.28, 3.14)
-    )
-  );
+  // SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
+  //   new Translation2d(-11.5, 11.5),
+  //   new Translation2d(-11.5, -11.5),
+  //   new Translation2d(-11.5, 11.5),
+  //   new Translation2d(11.5, -11.5)
+  // );
+  // HolonomicDriveController holonomicController = new HolonomicDriveController(
+  //   new PIDController(1, 0, 0), 
+  //   new PIDController(1, 0, 0),
+  //   new ProfiledPIDController(1, 0, 0, 
+  //     new TrapezoidProfile.Constraints(6.28, 3.14)
+  //   )
+  // );
   
   double autox1 = 0; //defines left and right movement for auton
   double autox2 = 0; //defines spinning movement for auton
@@ -103,6 +111,15 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+
+    frontCamera = CameraServer.startAutomaticCapture();
+    frontCamera.setResolution(240, 180);
+    frontCamera.setFPS(8);
+    
+    climbCamera = CameraServer.startAutomaticCapture();
+    climbCamera.setResolution(240, 180);
+    climbCamera.setFPS(8);
+
     intakeArm.setIntakeArmDown();
     climberArms.setClimberReverse();
 
@@ -132,7 +149,6 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Encoder BR", driveSystem.wheelBR.getAbsoluteValue()); //Displays Back Right Wheel Encoder Values
     SmartDashboard.putNumber("Encoder FR", driveSystem.wheelFR.getAbsoluteValue()); //Displays Front Right Wheel Encoder Values
     SmartDashboard.putNumber("DriveEncoder FL", driveSystem.getEncoderFL());
-    SmartDashboard.putNumber("Encoder FR - Jared", driveSystem.getEncoderFR()); //Displays Front Right Wheel Encoder Values
 
     SmartDashboard.putBoolean("Driver Oriented", driverOriented);
     SmartDashboard.putNumber("Gyro Get Raw", gyro.getYaw()); //pulls gyro values
@@ -173,15 +189,18 @@ public class Robot extends TimedRobot {
 
       // Drive forward, fire cargo
       case kAuton2:
-        if (driveSystem.getRelativeEncoderFT() < 4) {
+      flywheel.setFlywheelSpeed(4500);
+        if (driveSystem.getRelativeEncoderFT() < 12) {
           autoy1 = .4;
           intake.set(.75);
         } else {
           autoy1 = 0;
-          if (flywheel.setFlywheelSpeed(3400)) {
-            // Fire cargo
-            index.set(-.5);
-          }
+          index.set(.5);
+          // if (flywheel.setFlywheelSpeed(4500)) {
+            // Fire cargoaw 
+            // index.set(-.5);
+          //}
+        
         }
         break;
 
@@ -203,7 +222,7 @@ public class Robot extends TimedRobot {
       
       }
 
-        driveSystem.moveManual(-autox1, -autoy1, -autox2, 0);
+        driveSystem.moveManual(autox1, autoy1, autox2, 0);
   }
 
   @Override
@@ -275,6 +294,12 @@ public class Robot extends TimedRobot {
       }
     }
 
+    //Drive Speed Control
+    // if (joystick.getRawButton(DR_SPD_LIMITER)){
+    //   Wheel.driveController.setSpeed(motorSpeed * DRIVE_SLOW_SPD);
+
+    // }
+
     //climber stuff
     if (operator.getRawButtonPressed(CLIMBERARM_TOGGLE)){
       if (climberArms.isClimberForward()) {
@@ -302,11 +327,19 @@ public class Robot extends TimedRobot {
     // }
 
     // sets Flywheel for high goal
-    SmartDashboard.putString("flywheel state", flywheel.getCurrentPhase() == Phase.OFF ? "Off" : flywheel.getCurrentPhase() == Phase.SPEED_UP ? "Speed Up" : "Lock In");
-    if (operator.getRawButtonPressed(FLYWHEEL_TOGGLE)) {
+    SmartDashboard.putBoolean("flywheel state", flywheel.getCurrentPhase() == Phase.LOCK_IN);
+    if (operator.getRawButtonPressed(FLYWHEEL_TOGGLE) || operator.getRawButtonPressed(3)) {
       if (flywheel.getCurrentPhase() == Phase.OFF) {
-        flywheel.setFlywheelSpeed(HIGH_GOAL_SPEED);
-        setLEDs(PrettyLights.SKY_BLUE);
+        // Low goal
+        if (operator.getRawButton(3)){
+          flywheel.setFlywheelSpeed(LOW_GOAL_SPEED);
+          setLEDs(PrettyLights.LAWN_GREEN);
+        } else {
+          // High goal
+          flywheel.setFlywheelSpeed(HIGH_GOAL_SPEED);
+          setLEDs(PrettyLights.SKY_BLUE);
+        }
+
       } else flywheel.killFlywheel();
      }
 
@@ -317,6 +350,7 @@ public class Robot extends TimedRobot {
     //     setLEDs(PrettyLights.LAWN_GREEN);
     //   } else flywheel.killFlywheel();
     //  }
+    
 
      if (flywheel.isRunning()) {
        if (flywheel.setFlywheelSpeed(flywheel.getFlywheelSetpoint())) {
@@ -331,11 +365,11 @@ public class Robot extends TimedRobot {
      
 
     if (operator.getPOV() == 90){
-      flywheel.setFlywheelSpeed(flywheel.getFlywheelSetpoint() + 1);
+      flywheel.setFlywheelSpeed(flywheel.getFlywheelSetpoint() + 10);
       setLEDs(PrettyLights.BLACK);
     }
     if (operator.getPOV() == 270){
-      flywheel.setFlywheelSpeed(flywheel.getFlywheelSetpoint() - 1);
+      flywheel.setFlywheelSpeed(flywheel.getFlywheelSetpoint() - 10);
       setLEDs(PrettyLights.BLACK);
     }
     // Index

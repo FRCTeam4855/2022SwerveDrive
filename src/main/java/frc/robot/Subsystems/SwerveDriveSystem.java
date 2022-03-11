@@ -16,7 +16,7 @@ public class SwerveDriveSystem extends SubsystemBase implements GenericDriveSyst
     public Wheel wheelFL = new Wheel(1, 2, 0, -0.225); //defines the front left wheel //-0.225
     public Wheel wheelBL = new Wheel(3, 4, 1, -0.053); //defines the back left wheel //-0.053
     public Wheel wheelBR = new Wheel(5, 6, 2, -0.337); //defines the back right wheel //-0.337
-    public Wheel wheelFR = new Wheel(7, 8, 3, -0.403); //defines the front right wheel //0.153
+    public Wheel wheelFR = new Wheel(7, 8, 3, -0.850); //defines the front right wheel //0.153
 
 
     // Wheel Values: driveControllerID, steerControllerID, absolutePort(encoder), offSet1
