@@ -336,6 +336,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
+    SmartDashboard.putNumber("Left arm encoder", climberMotors.encoderLeft.getPosition());
+    SmartDashboard.putNumber("Right arm encoder", climberMotors.encoderRight.getPosition());
+    climberMotors.armMotorL.set(Math.abs(operator.getRawAxis(1)) < JOYSTK_DZONE ? 0 : operator.getRawAxis(1) * .5);
+    climberMotors.armMotorR.set(Math.abs(operator.getRawAxis(5)) < JOYSTK_DZONE ? 0 : operator.getRawAxis(5) * .5);
   }
   
 }
