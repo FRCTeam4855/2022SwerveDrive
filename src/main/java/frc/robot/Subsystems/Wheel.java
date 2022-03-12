@@ -31,6 +31,10 @@ public class Wheel {
     
     PIDController pid = new PIDController(2, 0, 0); //sets up the PID loop, if you don't know what that is look it up
 
+    public enum SpeedSetting {
+        PRECISE, NORMAL, TURBO
+    }
+
     public Wheel(int driveControllerID, int steerControllerID, int absolutePort, double offSet1) {
         driveController = new CANSparkMax(driveControllerID, MotorType.kBrushless); //defining the motor controller for the wheel speeds and its port
         steerController = new CANSparkMax(steerControllerID, MotorType.kBrushless); //defining the motor controller for the wheel angles and its port
@@ -81,22 +85,27 @@ public class Wheel {
         steerController.set(MathUtil.clamp(desiredSpeed, -0.4, 0.4));
     }
 
+    // Drivves the robot with raw input without modifying speed
     public void setSpeed(double motorSpeed) {
-        if (isFlipped) motorSpeed *= -1; //this the speed the wheels will flip at, just don't change it
-        driveController.set(motorSpeed * DRIVE_INIT_SPD); //this is where you change the speed of the wheels
+        if (isFlipped) motorSpeed *= -1; //flips the wheel input if necessary
+        driveController.set(motorSpeed); //this is where you change the speed of the wheels
     }
 
-    // private void setSpeed(double motorSpeed) {
-    //     if (isFlipped) motorSpeed *= -1; //this the speed the wheels will flip at, just don't change it
-    //     if (joystick.getRawButton(6)) {
-    //         driveController.set(motorSpeed * Constants.LOW_GOAL_SPEED); 
-    //     }
-    // else driveController.set(motorSpeed * Constants.HIGH_GOAL_SPEED); //this is where you change the speed of the wheels
-    // }
+    // Can take in a speed setting and modify the motor speed given
+    public void setSpeed(double motorSpeed, SpeedSetting speedSetting) {
+        if (speedSetting == SpeedSetting.NORMAL) motorSpeed *= DRIVE_INIT_SPD;
+        if (speedSetting == SpeedSetting.PRECISE) motorSpeed *= DRIVE_SLOW_SPD;
+        driveController.set(motorSpeed);
+    }
 
     public void set(double setAngle, double speed) {
         turnToAngle(setAngle);
         setSpeed(speed);
+    }
+
+    public void set(double setAngle, double speed, SpeedSetting speedSetting) {
+        turnToAngle(setAngle);
+        setSpeed(speed, speedSetting);
     }
 
     public double getDriveRelativeEncoderValue(){

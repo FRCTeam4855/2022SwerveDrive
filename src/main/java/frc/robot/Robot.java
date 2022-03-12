@@ -23,6 +23,7 @@ import static frc.robot.Constants.*;
 import frc.robot.Subsystems.IntakeArmPneumatics;
 import frc.robot.Subsystems.PrettyLights;
 import frc.robot.Subsystems.SwerveDriveSystem;
+import frc.robot.Subsystems.Wheel;
 import frc.robot.Subsystems.Flywheel.Phase;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
@@ -209,7 +210,7 @@ public class Robot extends TimedRobot {
       
       }
 
-        driveSystem.moveManual(autox1, autoy1, autox2, 0);
+      driveSystem.moveManual(autox1, autoy1, autox2, 0);
   }
 
   @Override
@@ -228,18 +229,22 @@ public class Robot extends TimedRobot {
     double x2 = -joystick.getRawAxis(4); //connects the spinning drive movements to the drive controllers right x-axis
     double y1 = -joystick.getRawAxis(1); //connects the forwards and backwards drive movements to the drive controllers left y-axis
 
+    //Driver Controller
     //this tells the robot when it should be driverOriented or robotOriented
     if (driverOriented) {
       theta_radians = gyro.getYaw() * Math.PI / 180; //driverOriented
     } else theta_radians = 0; //robotOriented
 
-    driveSystem.moveManual(x1, y1, x2, theta_radians);
 
-  //Driver Controller
-
+    // Drive the robot
+    Wheel.SpeedSetting driveSpeed = Wheel.SpeedSetting.NORMAL;
+    if (joystick.getRawButton(6)) driveSpeed = Wheel.SpeedSetting.TURBO;
+    if (joystick.getRawAxis(2) > .5) driveSpeed = Wheel.SpeedSetting.PRECISE;
+    driveSystem.moveManual(x1, y1, x2, theta_radians, driveSpeed);
+    
+    // Reset the relative encoders
     if (joystick.getRawButtonPressed(ENCODER_RESET)) {
       driveSystem.resetRelativeEncoders();
-
     }
 
     //zeros the gyro if you press the Y button
@@ -248,18 +253,15 @@ public class Robot extends TimedRobot {
       setLEDs(PrettyLights.WHITE);
     }
 
-    //This turns driver oriented on and off when x is pressed
+    //This turns driver oriented on or off when x is pressed
     if (joystick.getRawButtonPressed(ORIENTATION_TOGGLE)){
-      if (driverOriented == false){
-      
-      driverOriented = true;
-      }else{driverOriented = false;
-      }
-      
+      driverOriented = !driverOriented;
     }
 
-  //Operator Controller
 
+
+
+    //Operator Controller
     //intake
     if (Math.abs(operator.getRawAxis(3)) > JOYSTK_DZONE) {
       intake.set(-operator.getRawAxis(3) * .75);
@@ -275,12 +277,6 @@ public class Robot extends TimedRobot {
         intakeArm.setIntakeArmDown();;
       }
     }
-
-    //Drive Speed Control
-    // if (joystick.getRawButton(DR_SPD_LIMITER)){
-    //   Wheel.driveController.setSpeed(motorSpeed * DRIVE_SLOW_SPD);
-
-    // }
 
     //climber stuff
     if (operator.getRawButtonPressed(CLIMBERARM_TOGGLE)){
