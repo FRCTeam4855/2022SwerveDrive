@@ -95,7 +95,7 @@ public class Wheel {
     public void setSpeed(double motorSpeed, SpeedSetting speedSetting) {
         if (speedSetting == SpeedSetting.NORMAL) motorSpeed *= DRIVE_INIT_SPD;
         if (speedSetting == SpeedSetting.PRECISE) motorSpeed *= DRIVE_SLOW_SPD;
-        driveController.set(motorSpeed);
+        setSpeed(motorSpeed);
     }
 
     public void set(double setAngle, double speed) {

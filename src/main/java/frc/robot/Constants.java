@@ -3,8 +3,8 @@ package frc.robot;
 public class Constants {
     //Constants ++++++++++++
     public static final double JOYSTK_DZONE = .17;                  // global deadzone for all controllers
-    public static final double LOW_GOAL_SPEED = 1200;               // velocity setpoint for flywheel launching into low goal
-    public static final double HIGH_GOAL_SPEED = 4200;              // velocity setpoint for flywheel launching into high goal at mid-field
+    public static final double LOW_GOAL_SPEED = 1700;               // velocity setpoint for flywheel launching into low goal
+    public static final double HIGH_GOAL_SPEED = 3900;              // velocity setpoint for flywheel launching into high goal at mid-field
     public static final double DRIVE_INIT_SPD = 0.75;               // multiplier
     public static final double DRIVE_SLOW_SPD = 0.35;               // multiplier
     public static final double CLIMB_ENCODER_LIMIT_LEFT = 2500;     // prevents the left climber arm from running past this encoder value

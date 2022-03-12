@@ -14,6 +14,7 @@ import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Subsystems.ClimberMotor;
@@ -42,6 +43,7 @@ public class Robot extends TimedRobot {
   private static final String kAuton1 = "Auton Mode 1"; //This is the first or default autonomous routine
   private static final String kAuton2 = "Auton Mode 2"; //Drives forward, picks up a ball, and fires both
   private static final String kAuton3 = "Auton Mode 3"; //Drives forward and stops
+  Timer autoTimer = new Timer();
 
   private String m_autoSelected; //This selects between the two autonomous
   public SendableChooser<String> m_chooser = new SendableChooser<>(); //creates the ability to switch between autons on SmartDashboard
@@ -151,6 +153,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putString("auton selected", m_autoSelected); //displays which auton is currently running
     driveSystem.resetRelativeEncoders();
     gyro.reset();
+    autoTimer.start();
     // CommandScheduler.getInstance().setDefaultCommand(driveSystem, new SwerveDriveStop(driveSystem));
     // SwerveDriveMoveForward swerveDriveMoveForward = new SwerveDriveMoveForward(driveSystem);
     // swerveDriveMoveForward.schedule();
@@ -192,20 +195,15 @@ public class Robot extends TimedRobot {
         }
         break;
 
-      // Drive forward, pick up a cargo, fire both
+      // Immediately fire cargo into low goal and drive away from tarmac
       case kAuton3:
-      intake.set(.75);
-      if (driveSystem.getRelativeEncoderFT() < 4) {
-        autoy1 = .4;
-        intake.set(.75);
-      } else {
-        autoy1 = 0;
-        if (flywheel.setFlywheelSpeed(3400)) {
-          // Fire cargo
-          index.set(-.5);
+        if (autoTimer.get() < 6 && flywheel.setFlywheelSpeed(LOW_GOAL_SPEED)) {
+          // Fire ball
+          index.set(.5);
+        } else if (autoTimer.get() > 6) {
+          // Leave tarmac
+          if (driveSystem.getRelativeEncoderFT() < 12) autoy1 = .4;
         }
-      }
-
         break;
       
       }
@@ -331,13 +329,13 @@ public class Robot extends TimedRobot {
     index.set(Math.abs(operator.getRawAxis(5)) > .15 ? (-(Math.abs(operator.getRawAxis(5)) / operator.getRawAxis(5) * .5)): 0 );
   }
 
-  /**
+  /**s
    * This function is called periodically during test mode.
    */
   @Override
   public void testPeriodic() {
-    SmartDashboard.putNumber("Left arm encoder", climberMotors.encoderLeft.getPosition());
-    SmartDashboard.putNumber("Right arm encoder", climberMotors.encoderRight.getPosition());
+    //SmartDashboard.putNumber("Left arm encoder", climberMotors.encoderLeft.getPosition());
+    //SmartDashboard.putNumber("Right arm encoder", climberMotors.encoderRight.getPosition());
     climberMotors.armMotorL.set(Math.abs(operator.getRawAxis(1)) < JOYSTK_DZONE ? 0 : operator.getRawAxis(1) * .5);
     climberMotors.armMotorR.set(Math.abs(operator.getRawAxis(5)) < JOYSTK_DZONE ? 0 : operator.getRawAxis(5) * .5);
   }
