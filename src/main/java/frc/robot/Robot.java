@@ -285,10 +285,17 @@ public class Robot extends TimedRobot {
         climberArms.setClimberForward();
       }
     }
-    if (Math.abs(operator.getRawAxis(1)) < JOYSTK_DZONE) {
-      climberMotors.climberStop();
+    if (operator.getRawButton(6)) {
+      // Manual override for climber arms (RB lets operator control arms individually)
+      climberMotors.armMotorL.set(Math.abs(operator.getRawAxis(1)) < JOYSTK_DZONE ? 0 : operator.getRawAxis(1) * .5);
+      climberMotors.armMotorR.set(Math.abs(operator.getRawAxis(5)) < JOYSTK_DZONE ? 0 : operator.getRawAxis(5) * .5);
     } else {
-      climberMotors.climberVariable(operator.getRawAxis(1));
+      // Automatically uses one stick to drive both
+      if (Math.abs(operator.getRawAxis(1)) < JOYSTK_DZONE) {
+        climberMotors.climberStop();
+      } else {
+        climberMotors.climberVariable(operator.getRawAxis(1));
+      }
     }
 
 
