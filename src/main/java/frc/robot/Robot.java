@@ -11,7 +11,9 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -36,6 +38,8 @@ import edu.wpi.first.wpilibj.motorcontrol.Spark;
  * project. E
  */ 
 public class Robot extends TimedRobot { 
+
+  private Compressor compressor = new Compressor(10, PneumaticsModuleType.REVPH);
  
   double theta_radians; //theta_radians is difference the angle the robot is at, and the zerod angle
   boolean driverOriented = true; //where the robot is in driver oriented or not
@@ -239,7 +243,13 @@ public class Robot extends TimedRobot {
     if (joystick.getRawButton(6)) driveSpeed = Wheel.SpeedSetting.TURBO;
     if (joystick.getRawAxis(2) > .5) driveSpeed = Wheel.SpeedSetting.PRECISE;
     driveSystem.moveManual(x1, y1, x2, theta_radians, driveSpeed);
+    //TODO look at axis2
     
+    //stops the compressor but dont know if it works
+    if (joystick.getRawButtonPressed(1)){
+      compressor.disable();
+    }
+
     // Reset the relative encoders
     if (joystick.getRawButtonPressed(ENCODER_RESET)) {
       driveSystem.resetRelativeEncoders();

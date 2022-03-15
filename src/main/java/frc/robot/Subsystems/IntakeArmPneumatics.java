@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 public class IntakeArmPneumatics {
     private DoubleSolenoid intakeArm = new DoubleSolenoid(10, PneumaticsModuleType.REVPH, 4, 5);
 
+    
+
     public void setIntakeArmDown() {
         intakeArm.set(Value.kForward);        
     }

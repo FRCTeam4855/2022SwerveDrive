@@ -10,8 +10,8 @@ public class ClimberMotor {
     //public Spark armMotorL = new Spark(3);
     //public Spark armMotorR = new Spark(2);
 
-    public CANSparkMax armMotorL = new CANSparkMax(11, MotorType.kBrushed); // pid formerly 3
-    public CANSparkMax armMotorR = new CANSparkMax(12, MotorType.kBrushed); // pid formerly 2
+    public CANSparkMax armMotorL = new CANSparkMax(11, MotorType.kBrushless); // pid formerly 3
+    public CANSparkMax armMotorR = new CANSparkMax(12, MotorType.kBrushless); // pid formerly 2
     //public RelativeEncoder encoderLeft = armMotorL.getEncoder();
     //public RelativeEncoder encoderRight = armMotorR.getEncoder();
 
