@@ -12,6 +12,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.SPI;
@@ -23,6 +24,7 @@ import frc.robot.Subsystems.ClimberMotor;
 import frc.robot.Subsystems.ClimberPNU;
 import frc.robot.Subsystems.Flywheel;
 import static frc.robot.Constants.*;
+import frc.robot.Subsystems.LimitSwitch;
 import frc.robot.Subsystems.IntakeArmPneumatics;
 import frc.robot.Subsystems.PrettyLights;
 import frc.robot.Subsystems.SwerveDriveSystem;
@@ -54,6 +56,7 @@ public class Robot extends TimedRobot {
 
   static Limelight limelight = new Limelight();
 
+
   Joystick joystick = new Joystick(0);
   Joystick operator = new Joystick(1); 
 
@@ -64,8 +67,12 @@ public class Robot extends TimedRobot {
   Spark index = new Spark(1);
   Flywheel flywheel = new Flywheel(9);
 
+
   UsbCamera frontCamera;
   UsbCamera climbCamera;
+
+  LimitSwitch limitSwitchLeft = new LimitSwitch(I2C.Port.kMXP);
+  LimitSwitch limitSwitchRight = new LimitSwitch(I2C.Port.kOnboard);
 
   public Spark leds = new Spark(8);
   double pattern = PrettyLights.C1_STROBE;
@@ -147,6 +154,9 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("Driver Oriented", driverOriented);
     SmartDashboard.putNumber("Gyro Get Raw", gyro.getYaw()); //pulls gyro values
     SmartDashboard.putNumber("Flywheel velocity", flywheel.getFlywheelVelocity());
+
+    SmartDashboard.putNumber("LProximity", limitSwitchLeft.getProximity());
+    SmartDashboard.putNumber("RProximity", limitSwitchRight.getProximity());
   
   }
 
@@ -245,9 +255,11 @@ public class Robot extends TimedRobot {
     driveSystem.moveManual(x1, y1, x2, theta_radians, driveSpeed);
     //TODO look at axis2
     
-    //stops the compressor but dont know if it works
-    if (joystick.getRawButtonPressed(1)){
+    //stops the compressor
+    if (joystick.getRawButtonPressed(7)){
+      if (joystick.getRawButtonPressed(8)){
       compressor.disable();
+      }
     }
 
     // Reset the relative encoders
@@ -303,11 +315,26 @@ public class Robot extends TimedRobot {
       // Automatically uses one stick to drive both
       if (Math.abs(operator.getRawAxis(1)) < JOYSTK_DZONE) {
         climberMotors.climberStop();
-      } else {
+      }
+      else {
         climberMotors.climberVariable(operator.getRawAxis(1));
       }
     }
 
+    if (operator.getRawButton(6)) {
+      if (operator.getRawButton(3)) {
+        if (limitSwitchLeft.getProximity() < 800) {
+          climberMotors.armMotorL.set(0);
+        } else {
+          climberMotors.armMotorL.set(-.9);
+        }
+        if (limitSwitchRight.getProximity() < 800) {
+          climberMotors.armMotorR.set(0);
+        } else {
+          climberMotors.armMotorR.set(-.9);
+        }     
+       }
+    }
 
     // Flywheel
     SmartDashboard.putBoolean("flywheel state", flywheel.getCurrentPhase() == Phase.LOCK_IN);
