@@ -75,7 +75,7 @@ public class Robot extends TimedRobot {
   LimitSwitch limitSwitchRight = new LimitSwitch(I2C.Port.kOnboard);
 
   public Spark leds = new Spark(8);
-  double pattern = PrettyLights.C1_STROBE;
+  double pattern = PrettyLights.C1_AND_C2_SINELON;
     public void setLEDs(double color) {
         pattern = color;
         leds.set(color); 
@@ -113,7 +113,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-
+    leds.set(PrettyLights.C1_AND_C2_SINELON);
     frontCamera = CameraServer.startAutomaticCapture();
     frontCamera.setResolution(240, 180);
     frontCamera.setFPS(8);
@@ -228,7 +228,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     flywheel.killFlywheel();
-    setLEDs(PrettyLights.BPM_RAINBOWPALETTE);
+    leds.set(PrettyLights.BPM_RAINBOWPALETTE);
   }
 
   /**
@@ -270,7 +270,7 @@ public class Robot extends TimedRobot {
     //zeros the gyro if you press the Y button
     if (joystick.getRawButtonPressed(GYRO_RESET)) { 
       gyro.reset();
-      setLEDs(PrettyLights.WHITE);
+      leds.set(PrettyLights.WHITE);
     }
 
     //This turns driver oriented on or off when x is pressed
@@ -301,7 +301,7 @@ public class Robot extends TimedRobot {
     //climber stuff
     if (operator.getRawButtonPressed(CLIMBERARM_TOGGLE)){
       if (climberArms.isClimberForward()) {
-        setLEDs(PrettyLights.BPM_RAINBOWPALETTE);
+        //leds.set(PrettyLights.BPM_RAINBOWPALETTE);
         climberArms.setClimberReverse();
       } else if (climberArms.isClimberReverse()) {
         climberArms.setClimberForward();
@@ -351,13 +351,22 @@ public class Robot extends TimedRobot {
       } else flywheel.killFlywheel();
      }
 
+     while (flywheel.isRunning()) {
+        if (flywheel.getCurrentPhase() == Phase.LOCK_IN){
+        leds.set(PrettyLights.BREATH_RED);
+        }
+        if (flywheel.getCurrentPhase() == Phase.SPEED_UP){
+        leds.set(PrettyLights.BREATH_BLUE);
+        }
+     }
+
      if (flywheel.isRunning()) {
        if (flywheel.setFlywheelSpeed(flywheel.getFlywheelSetpoint())) {
          // We are OK to fire
-         setLEDs(PrettyLights.BREATH_BLUE);
+        //  leds.set(PrettyLights.BREATH_BLUE);
        } else {
          // Yeah we're not OK to fire
-        setLEDs(PrettyLights.BREATH_RED);
+        //  leds.set(PrettyLights.BREATH_RED);
        }
      }
      
@@ -382,6 +391,7 @@ public class Robot extends TimedRobot {
     //SmartDashboard.putNumber("Right arm encoder", climberMotors.encoderRight.getPosition());
     climberMotors.armMotorL.set(Math.abs(operator.getRawAxis(1)) < JOYSTK_DZONE ? 0 : operator.getRawAxis(1));
     climberMotors.armMotorR.set(Math.abs(operator.getRawAxis(5)) < JOYSTK_DZONE ? 0 : operator.getRawAxis(5));
+    leds.set(PrettyLights.GREEN);
   }
   
 }

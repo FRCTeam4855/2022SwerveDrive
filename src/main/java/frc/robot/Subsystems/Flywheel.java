@@ -8,6 +8,8 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+
+
 public class Flywheel {
     private double velocitySetpoint = 0;        // the desired velocity setpoint for the flywheel
     private int speedUpTime = -1;               // the amount of program ticks remaining for the shooter to be fed by percentage input

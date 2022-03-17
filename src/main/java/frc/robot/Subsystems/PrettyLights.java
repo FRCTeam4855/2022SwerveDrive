@@ -105,7 +105,7 @@ public class PrettyLights {
     public final static double GRAY = .95;
     public final static double DARK_GRAY = .97;
     public final static double BLACK = .99;
-    double pattern = C1_AND_C2_SINELON;
+    double pattern = PrettyLights.C1_AND_C2_SINELON;
 
 // C1 is purple and C2 is gold
     // double pattern = C1_AND_C2_SINELON;

@@ -9,7 +9,6 @@ import edu.wpi.first.math.MathUtil;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder; //CANEncoder
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import static frc.robot.Constants.*;
 
 import edu.wpi.first.wpilibj.Joystick;
