@@ -45,16 +45,18 @@ public class Robot extends TimedRobot {
  
   double theta_radians; //theta_radians is difference the angle the robot is at, and the zerod angle
   boolean driverOriented = true; //where the robot is in driver oriented or not
+  boolean lampOn2 = true;
 
-  private static final String kAuton1 = "Auton Mode 1"; //This is the first or default autonomous routine
-  private static final String kAuton2 = "Auton Mode 2"; //Drives forward, picks up a ball, and fires both
-  private static final String kAuton3 = "Auton Mode 3"; //Drives forward and stops
+  private static final String kAuton1 = "Leave Tarmac"; 
+  private static final String kAuton2 = "Shoot High Leave Tarmac"; 
+  private static final String kAuton3 = "Shoot High Intake Cargo"; 
+  private static final String kAuton4 = "Shoot 2 High Leave Tarmac";
   Timer autoTimer = new Timer();
 
   private String m_autoSelected; //This selects between the two autonomous
   public SendableChooser<String> m_chooser = new SendableChooser<>(); //creates the ability to switch between autons on SmartDashboard
 
-  static Limelight limelight = new Limelight();
+ Limelight limelight = new Limelight();
 
 
   Joystick joystick = new Joystick(0);
@@ -71,8 +73,8 @@ public class Robot extends TimedRobot {
   UsbCamera frontCamera;
   UsbCamera climbCamera;
 
-  LimitSwitch limitSwitchLeft = new LimitSwitch(I2C.Port.kMXP);
-  LimitSwitch limitSwitchRight = new LimitSwitch(I2C.Port.kOnboard);
+  LimitSwitch limitSwitchLeft = new LimitSwitch(I2C.Port.kOnboard);
+  LimitSwitch limitSwitchRight = new LimitSwitch(I2C.Port.kMXP);
 
   public Spark leds = new Spark(8);
   double pattern = PrettyLights.C1_AND_C2_SINELON;
@@ -113,6 +115,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+
+
     leds.set(PrettyLights.C1_AND_C2_SINELON);
     frontCamera = CameraServer.startAutomaticCapture();
     frontCamera.setResolution(240, 180);
@@ -125,9 +129,10 @@ public class Robot extends TimedRobot {
     intakeArm.setIntakeArmDown();
     climberArms.setClimberReverse();
 
-    m_chooser.setDefaultOption("Auton Mode 1", kAuton1);
-    m_chooser.addOption("Auton Mode 2", kAuton2);
-    m_chooser.addOption("Auton Mode 3", kAuton3);
+    m_chooser.setDefaultOption("Leave Tarmac", kAuton1);
+    m_chooser.addOption("Shoot High Leave Tarmac", kAuton2);
+    m_chooser.addOption("Shoot High Intake Cargo", kAuton3);
+    m_chooser.addOption("Shoot 2 High Leave Tarmac", kAuton4);
     //m_chooser.addOption("Auton Mode 4", kAuton4);
     SmartDashboard.putData(m_chooser); //displays the auton options //maybe move to autonomousInit
   }
@@ -142,6 +147,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    //limelight.turnOnLamp();
+    limelight.turnOffLamp();
+
     SmartDashboard.putNumber("Encoder FL", driveSystem.wheelFL.getAbsoluteValue()); //Displays Front Left Wheel Encoder Values
     SmartDashboard.putNumber("Encoder BL", driveSystem.wheelBL.getAbsoluteValue()); //Displays Back Left Wheel Encoder Values
     SmartDashboard.putNumber("Encoder BR", driveSystem.wheelBR.getAbsoluteValue()); //Displays Back Right Wheel Encoder Values
@@ -160,6 +168,15 @@ public class Robot extends TimedRobot {
   
   }
 
+  @Override
+  public void disabledInit() {
+
+  }
+  
+  @Override
+  public void disabledPeriodic() {
+    limelight.turnOffLamp();
+  }
 
   @Override
   public void autonomousInit() {
@@ -185,6 +202,7 @@ public class Robot extends TimedRobot {
       // drive forward
       case kAuton1: 
       default: 
+      intakeArm.setIntakeArmDown();
       if (driveSystem.getRelativeEncoderFT() < 10) {//74 is 10 ft
         autoy1 = .4;
       } else {
@@ -194,30 +212,99 @@ public class Robot extends TimedRobot {
 
       // Drive forward, fire cargo
       case kAuton2:
-      flywheel.setFlywheelSpeed(4500);
-        if (driveSystem.getRelativeEncoderFT() < 10.5) {
-          autoy1 = .4;
-          intake.set(.75);
-        } else {
-          autoy1 = 0;
-          index.set(.5);
+      intakeArm.setIntakeArmDown();
+      intake.set(-.75);
+      flywheel.setFlywheelSpeed(HIGH_GOAL_SPEED);
+
+      if (autoTimer.get() < 3) {
+        index.set(.5);
+      }
+
+      if (autoTimer.get() > 5 && driveSystem.getRelativeEncoderFT() < 5) {
+        autoy1 = .4;
+        index.set(0);
+      } else {
+        autoy1 = 0;
+      }
+  
+
+      // flywheel.setFlywheelSpeed(HIGH_GOAL_SPEED);
+      // intakeArm.setIntakeArmDown();
+        // if (driveSystem.getRelativeEncoderFT() < 10.5) {
+        //   autoy1 = .4;
+        //   intake.set(-.75);
+        // } else {
+        //   autoy1 = 0;
+        //   index.set(.5);
           // if (flywheel.setFlywheelSpeed(4500)) {
             // Fire cargoaw 
             // index.set(-.5);
           //}
         
-        }
+        
         break;
 
       // Immediately fire cargo into low goal and drive away from tarmac
       case kAuton3:
-        if (autoTimer.get() < 6 && flywheel.setFlywheelSpeed(LOW_GOAL_SPEED)) {
-          // Fire ball
+      intakeArm.setIntakeArmDown();
+      intake.set(-.75);
+      flywheel.setFlywheelSpeed(HIGH_GOAL_SPEED);
+
+      if (autoTimer.get() < 3) {
+        index.set(.5);
+      }
+
+      if (autoTimer.get() > 5 && driveSystem.getRelativeEncoderFT() < 8) {
+        autoy1 = .4;
+        index.set(0);
+      } else {
+        autoy1 = 0;
+      }
+        // if (autoTimer.get() < 1 && flywheel.setFlywheelSpeed(LOW_GOAL_SPEED)) {
+        //   // Fire ball
+        //   index.set(.5);
+        // } else if (autoTimer.get() > 1) {
+        //   // Leave tarmac
+        //   if (driveSystem.getRelativeEncoderFT() < 10) autoy1 = .4;
+        // }
+
+        break;
+
+        // shoots two cargo //dont know if it works
+        case kAuton4:
+        intakeArm.setIntakeArmDown();
+        intake.set(-.75);
+        flywheel.setFlywheelSpeed(HIGH_GOAL_SPEED);
+
+        if (autoTimer.get() < 2) {
           index.set(.5);
-        } else if (autoTimer.get() > 6) {
-          // Leave tarmac
-          if (driveSystem.getRelativeEncoderFT() < 12) autoy1 = .4;
         }
+
+        if (autoTimer.get() > 3.5 && driveSystem.getRelativeEncoderFT() < 5) {
+          autoy1 = .4;
+          index.set(0);
+        } else {
+          autoy1 = 0;
+        }
+
+        if (autoTimer.get() > 6.5 && driveSystem.getRelativeEncoderFT() > 0) {
+          autoy1 = -.4;
+        } else {
+          autoy1 = 0;
+        }
+
+        if (autoTimer.get() > 10) {
+          index.set(.5);
+        } else {
+          index.set(0);
+        }
+
+        if (autoTimer.get() > 12 && driveSystem.getRelativeEncoderFT() < 8) {
+          autoy1 = .6;
+        } else {
+          autoy1 = 0;
+        }
+
         break;
       
       }
@@ -249,6 +336,19 @@ public class Robot extends TimedRobot {
 
 
     // Drive the robot
+
+    // if (joystick.getRawButtonPressed(1)) {
+    //   if (lampOn2 == false) {
+    //     limelight.turnOnLamp();
+    //     lampOn2 = true;
+    //   } else if (lampOn2 == true) {
+    //     limelight.turnOffLamp();
+    //     lampOn2 = false;
+    //   }
+    // }
+  
+    
+
     Wheel.SpeedSetting driveSpeed = Wheel.SpeedSetting.NORMAL;
     if (joystick.getRawButton(6)) driveSpeed = Wheel.SpeedSetting.TURBO;
     if (joystick.getRawAxis(2) > .5) driveSpeed = Wheel.SpeedSetting.PRECISE;
@@ -256,6 +356,7 @@ public class Robot extends TimedRobot {
     //TODO look at axis2
     
     //stops the compressor
+    //DRIVER START AND SELECT
     if (joystick.getRawButtonPressed(7)){
       if (joystick.getRawButtonPressed(8)){
       compressor.disable();
@@ -320,18 +421,39 @@ public class Robot extends TimedRobot {
         climberMotors.climberVariable(operator.getRawAxis(1));
       }
     }
+    // if (limitSwitchLeft.getProximity() < 800){
+    //   if (operator.getRawButton(6) && operator.getRawButton(3)){
+    //   // if (operator.getRawButton(3)) {
+    //   //   if (limitSwitchLeft.getProximity() < 800) {
+    //       climberMotors.armMotorL.set(-.5);
+    //     } else {
+    //       climberMotors.armMotorL.set(0);
 
-    if (operator.getRawButton(6)) {
-      if (operator.getRawButton(3)) {
+
+    //   //   }
+    //   //   if (limitSwitchRight.getProximity() < 800) {
+    //   //     climberMotors.armMotorR.set(0);
+    //   //   } else {
+    //   //     climberMotors.armMotorR.set(-.9);
+    //      }     
+    //     }
+ 
+    if (operator.getRawButton(7)) {
+      if (operator.getRawButton(8)) {
         if (limitSwitchLeft.getProximity() < 800) {
           climberMotors.armMotorL.set(0);
         } else {
-          climberMotors.armMotorL.set(-.9);
-        }
+          climberMotors.armMotorL.set(-.8);
+        }     
+       }
+    }
+
+    if (operator.getRawButton(7)) {
+      if (operator.getRawButton(8)) {
         if (limitSwitchRight.getProximity() < 800) {
           climberMotors.armMotorR.set(0);
         } else {
-          climberMotors.armMotorR.set(-.9);
+          climberMotors.armMotorR.set(-.6);
         }     
        }
     }
@@ -351,13 +473,15 @@ public class Robot extends TimedRobot {
       } else flywheel.killFlywheel();
      }
 
-     while (flywheel.isRunning()) {
+    if (flywheel.isRunning()) {
         if (flywheel.getCurrentPhase() == Phase.LOCK_IN){
         leds.set(PrettyLights.BREATH_RED);
         }
         if (flywheel.getCurrentPhase() == Phase.SPEED_UP){
         leds.set(PrettyLights.BREATH_BLUE);
         }
+     } else {
+      leds.set(PrettyLights.BPM_RAINBOWPALETTE);
      }
 
      if (flywheel.isRunning()) {

@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 public class IntakeArmPneumatics {
-    private DoubleSolenoid intakeArm = new DoubleSolenoid(10, PneumaticsModuleType.REVPH, 4, 5);
+    private DoubleSolenoid intakeArm = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 4, 5);
 
     
 

@@ -3,9 +3,10 @@ package frc.robot.Subsystems;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.Compressor;
 
 public class ClimberPNU {
-    private DoubleSolenoid climberArm = new DoubleSolenoid(10, PneumaticsModuleType.REVPH, 0, 1);
+    private DoubleSolenoid climberArm = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 0, 1);
 
     // private DoubleSolenoid climberArmL = new DoubleSolenoid(10, PneumaticsModuleType.REVPH, 0, 1);
     // private DoubleSolenoid climberArmR = new DoubleSolenoid(10, PneumaticsModuleType.REVPH, 2, 3);

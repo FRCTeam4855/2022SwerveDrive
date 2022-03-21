@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder; //CANEncoder
 import frc.robot.Constants;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
 public class ClimberMotor {
     //public Spark armMotorL = new Spark(3);
