@@ -3,8 +3,8 @@ package frc.robot;
 public class Constants {
     //Constants ++++++++++++
     public static final double JOYSTK_DZONE = .17;                  // global deadzone for all controllers
-    public static final double LOW_GOAL_SPEED = 1700;               // velocity setpoint for flywheel launching into low goal
-    public static final double HIGH_GOAL_SPEED = 3900;              // velocity setpoint for flywheel launching into high goal at mid-field
+    public static final double LOW_GOAL_SPEED = 2500;               // velocity setpoint for flywheel launching into low goal
+    public static final double HIGH_GOAL_SPEED = 3550;              // velocity setpoint for flywheel launching into high goal at mid-field
     public static final double DRIVE_INIT_SPD = 0.75;               // multiplier
     public static final double DRIVE_SLOW_SPD = 0.35;               // multiplier
     public static final double CLIMB_ENCODER_LIMIT_LEFT = 2500;     // prevents the left climber arm from running past this encoder value
@@ -28,14 +28,11 @@ public class Constants {
     // BUTTON 4 = Xbox Y
     //@@@@@@@@@@
 
-
     // Driver Mappings +++++
     public static final int GYRO_RESET = 4;
     public static final int ENCODER_RESET = 2;
     public static final int ORIENTATION_TOGGLE = 3; 
     public static final int DR_SPD_LIMITER = 6;
-
-
 
     // Operator Mappings +++
     public static final int CLIMBERARM_TOGGLE = 4;
