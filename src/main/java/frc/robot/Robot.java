@@ -254,6 +254,7 @@ public class Robot extends TimedRobot {
         intake.set(-.75);
         flywheel.setFlywheelSpeed(HIGH_GOAL_SPEED);
         //add stops
+        //addstoops 
 
         if (autoTimer.get() > 2 && autoTimer.get() < 4) {
           index.set(.5);
