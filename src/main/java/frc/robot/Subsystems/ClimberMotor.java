@@ -2,18 +2,11 @@ package frc.robot.Subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.RelativeEncoder; //CANEncoder
-import frc.robot.Constants;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
 public class ClimberMotor {
-    //public Spark armMotorL = new Spark(3);
-    //public Spark armMotorR = new Spark(2);
 
     public CANSparkMax armMotorL = new CANSparkMax(11, MotorType.kBrushless); // pid formerly 3
     public CANSparkMax armMotorR = new CANSparkMax(12, MotorType.kBrushless); // pid formerly 2
-    //public RelativeEncoder encoderLeft = armMotorL.getEncoder();
-    //public RelativeEncoder encoderRight = armMotorR.getEncoder();
 
     public void climberUp() {
         armMotorL.set(.5);
@@ -31,8 +24,6 @@ public class ClimberMotor {
     }
 
     public void climberVariable(double input) {
-        //if (Constants.CLIMB_ENCODER_LIMIT_LEFT < encoderLeft.getPosition() && input > 0) armMotorL.set(input);
-        //if (Constants.CLIMB_ENCODER_LIMIT_RIGHT < encoderRight.getPosition() && input > 0) armMotorR.set(input);
         armMotorL.set(input);
         armMotorR.set(input);
     }

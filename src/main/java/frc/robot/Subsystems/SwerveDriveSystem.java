@@ -1,12 +1,13 @@
 package frc.robot.Subsystems;
 
+// import static frc.robot.Constants.*;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class SwerveDriveSystem extends SubsystemBase implements GenericDriveSystem{
 
-
-        //test drive platform
+    //test drive platform
     // public Wheel wheelFL = new Wheel(1, 2, 0, -0.758); //defines the front left wheel //-0.225
     // public Wheel wheelBL = new Wheel(3, 4, 1, -0.454); //defines the back left wheel //-0.053
     // public Wheel wheelBR = new Wheel(5, 6, 2, -0.143); //defines the back right wheel //-0.337
@@ -38,15 +39,12 @@ public class SwerveDriveSystem extends SubsystemBase implements GenericDriveSyst
     public double getEncoderFL() {
         return wheelFL.getDriveRelativeEncoderValue();
     }
-
     public double getEncoderBL() {
         return wheelBL.getDriveRelativeEncoderValue();
     }
-
     public double getEncoderBR() {
         return wheelBR.getDriveRelativeEncoderValue();
     }
-
     public double getEncoderFR() {
         return wheelFR.getDriveRelativeEncoderValue();
     }
@@ -54,15 +52,12 @@ public class SwerveDriveSystem extends SubsystemBase implements GenericDriveSyst
     public double getAEncoderFL() {
         return wheelFL.getDriveRelativeEncoderValue();
     }
-
     public double getAEncoderBL() {
         return wheelBL.getDriveRelativeEncoderValue();
     }
-
     public double getAEncoderBR() {
         return wheelBR.getDriveRelativeEncoderValue();
     }
-
     public double getAEncoderFR() {
         return wheelFR.getDriveRelativeEncoderValue();
     }
@@ -89,35 +84,30 @@ public class SwerveDriveSystem extends SubsystemBase implements GenericDriveSyst
     }
 
     @Override
-    public void moveForward(double distance) {
+    public void moveForward(double distance) { 
         SwerveOutput swerve = Swerve.convertControllerToSwerve(0, -.5, 0, 0);
         this.moveWheels(swerve);
     }
-
     @Override
     public void moveBackward(double distance) {
         SwerveOutput swerve = Swerve.convertControllerToSwerve(0, 1, 0, 0);
         this.moveWheels(swerve);
     }
-
     @Override
     public void moveLeft(double distance) {
         SwerveOutput swerve = Swerve.convertControllerToSwerve(1, 0, 0, 0);
         this.moveWheels(swerve);
     }
-
     @Override
     public void moveRight(double distance) {
         SwerveOutput swerve = Swerve.convertControllerToSwerve(-1, 0, 0, 0);
         this.moveWheels(swerve);
     }
-
     @Override
     public void spinClockwise(double degrees) {
         SwerveOutput swerve = Swerve.convertControllerToSwerve(0, 0, -1, 0);
         this.moveWheels(swerve); 
     }
-
     @Override
     public void spinCounterclockwise(double degrees) {
         SwerveOutput swerve = Swerve.convertControllerToSwerve(0, 0, 1, 0);
@@ -126,8 +116,6 @@ public class SwerveDriveSystem extends SubsystemBase implements GenericDriveSyst
 
     @Override
     public void stop() {
-        // SwerveOutput swerve = Swerve.convertControllerToSwerve(0, 0, 0, 0);
-        // this.moveWheels(swerve);
         wheelFL.set(0,0); //grabs information from the arrays and feeds it to the wheels 
         wheelFR.set(0,0); //grabs information from the arrays and feeds it to the wheels 
         wheelBR.set(0,0); //grabs information from the arrays and feeds it to the wheels 

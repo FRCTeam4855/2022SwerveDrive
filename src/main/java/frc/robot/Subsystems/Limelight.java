@@ -1,5 +1,5 @@
 
-package frc.robot;  
+package frc.robot.Subsystems;  
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -14,6 +14,7 @@ public class Limelight {
 	NetworkTableEntry camMode = limelightTable.getEntry("camMode");
 	NetworkTableEntry y = limelightTable.getEntry("ty"); //the y "ty" offset from the limelight
 	NetworkTableEntry ledMode = limelightTable.getEntry("ledMode");
+
 	//creates getTargetX for getting and using the x "tx" offset from the limelight
 	public double getTargetX() { 
 		return x.getDouble(0);
@@ -42,5 +43,15 @@ public class Limelight {
 	// 		turnOffLamp();
 	// 	}else turnOnLamp();
 	// }
+
+	// public void toggleLamp() {
+	//   if (lampOn2 == false) {
+    //     limelight.turnOnLamp();
+    //     lampOn2 = true;
+    //   } else if (lampOn2 == true) {
+    //     limelight.turnOffLamp();
+    //     lampOn2 = false;
+    //   }
+	// 	}
 
 }

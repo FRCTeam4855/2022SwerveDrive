@@ -4,9 +4,8 @@ import com.revrobotics.ColorSensorV3;
 
 import edu.wpi.first.wpilibj.I2C;
 
-
-
 public class LimitSwitch {
+    
     private I2C.Port myPort;
     private ColorSensorV3 colorSensor;
     

@@ -26,6 +26,7 @@ import frc.robot.Subsystems.Flywheel;
 import static frc.robot.Constants.*;
 import frc.robot.Subsystems.LimitSwitch;
 import frc.robot.Subsystems.IntakeArmPneumatics;
+import frc.robot.Subsystems.Limelight;
 import frc.robot.Subsystems.PrettyLights;
 import frc.robot.Subsystems.SwerveDriveSystem;
 import frc.robot.Subsystems.Wheel;
@@ -170,7 +171,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-
+    
   }
   
   @Override
@@ -184,6 +185,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putString("auton selected", m_autoSelected); //displays which auton is currently running
     driveSystem.resetRelativeEncoders();
     gyro.reset();
+    autoTimer.reset();
     autoTimer.start();
     // CommandScheduler.getInstance().setDefaultCommand(driveSystem, new SwerveDriveStop(driveSystem));
     // SwerveDriveMoveForward swerveDriveMoveForward = new SwerveDriveMoveForward(driveSystem);
@@ -210,7 +212,7 @@ public class Robot extends TimedRobot {
       }
       break;
 
-      // Drive forward, fire cargo
+      //fire cargo in high, drive back shorter distance
       case kAuton2:
       intakeArm.setIntakeArmDown();
       intake.set(-.75);
@@ -226,22 +228,6 @@ public class Robot extends TimedRobot {
       } else {
         autoy1 = 0;
       }
-  
-
-      // flywheel.setFlywheelSpeed(HIGH_GOAL_SPEED);
-      // intakeArm.setIntakeArmDown();
-        // if (driveSystem.getRelativeEncoderFT() < 10.5) {
-        //   autoy1 = .4;
-        //   intake.set(-.75);
-        // } else {
-        //   autoy1 = 0;
-        //   index.set(.5);
-          // if (flywheel.setFlywheelSpeed(4500)) {
-            // Fire cargoaw 
-            // index.set(-.5);
-          //}
-        
-        
         break;
 
       // Immediately fire cargo into low goal and drive away from tarmac
@@ -260,14 +246,6 @@ public class Robot extends TimedRobot {
       } else {
         autoy1 = 0;
       }
-        // if (autoTimer.get() < 1 && flywheel.setFlywheelSpeed(LOW_GOAL_SPEED)) {
-        //   // Fire ball
-        //   index.set(.5);
-        // } else if (autoTimer.get() > 1) {
-        //   // Leave tarmac
-        //   if (driveSystem.getRelativeEncoderFT() < 10) autoy1 = .4;
-        // }
-
         break;
 
         // shoots two cargo //dont know if it works
@@ -275,40 +253,32 @@ public class Robot extends TimedRobot {
         intakeArm.setIntakeArmDown();
         intake.set(-.75);
         flywheel.setFlywheelSpeed(HIGH_GOAL_SPEED);
+        //add stops
 
-        if (autoTimer.get() < 2) {
+        if (autoTimer.get() > 2 && autoTimer.get() < 4) {
           index.set(.5);
         }
-
-        if (autoTimer.get() > 3.5 && driveSystem.getRelativeEncoderFT() < 5) {
+        if (autoTimer.get() > 4 && autoTimer.get() < 10) {
+          index.set(0);
+        }
+        if (autoTimer.get() > 4.2 && autoTimer.get() < 7) {
           autoy1 = .4;
-          index.set(0);
-        } else {
+        } 
+        if (autoTimer.get() > 7 && autoTimer.get() < 8) {
           autoy1 = 0;
         }
-
-        if (autoTimer.get() > 6.5 && driveSystem.getRelativeEncoderFT() > 0) {
+        if (autoTimer.get() > 8 && autoTimer.get() < 10) {
           autoy1 = -.4;
-        } else {
-          autoy1 = 0;
-        }
-
-        if (autoTimer.get() > 10) {
+        } 
+        if (autoTimer.get() > 10.2 && autoTimer.get() < 12) {
           index.set(.5);
-        } else {
-          index.set(0);
         }
-
-        if (autoTimer.get() > 12 && driveSystem.getRelativeEncoderFT() < 8) {
-          autoy1 = .6;
-        } else {
+        if (autoTimer.get() > 12.2) {
           autoy1 = 0;
         }
 
         break;
-      
       }
-
       driveSystem.moveManual(autox1, autoy1, autox2, 0);
   }
 
@@ -347,8 +317,6 @@ public class Robot extends TimedRobot {
     //   }
     // }
   
-    
-
     Wheel.SpeedSetting driveSpeed = Wheel.SpeedSetting.NORMAL;
     if (joystick.getRawButton(6)) driveSpeed = Wheel.SpeedSetting.TURBO;
     if (joystick.getRawAxis(2) > .5) driveSpeed = Wheel.SpeedSetting.PRECISE;
@@ -359,7 +327,7 @@ public class Robot extends TimedRobot {
     //DRIVER START AND SELECT
     if (joystick.getRawButtonPressed(7)){
       if (joystick.getRawButtonPressed(8)){
-      compressor.disable();
+        compressor.disable();
       }
     }
 
@@ -378,9 +346,6 @@ public class Robot extends TimedRobot {
     if (joystick.getRawButtonPressed(ORIENTATION_TOGGLE)){
       driverOriented = !driverOriented;
     }
-
-
-
 
     //Operator Controller
     //intake
@@ -421,23 +386,8 @@ public class Robot extends TimedRobot {
         climberMotors.climberVariable(operator.getRawAxis(1));
       }
     }
-    // if (limitSwitchLeft.getProximity() < 800){
-    //   if (operator.getRawButton(6) && operator.getRawButton(3)){
-    //   // if (operator.getRawButton(3)) {
-    //   //   if (limitSwitchLeft.getProximity() < 800) {
-    //       climberMotors.armMotorL.set(-.5);
-    //     } else {
-    //       climberMotors.armMotorL.set(0);
-
-
-    //   //   }
-    //   //   if (limitSwitchRight.getProximity() < 800) {
-    //   //     climberMotors.armMotorR.set(0);
-    //   //   } else {
-    //   //     climberMotors.armMotorR.set(-.9);
-    //      }     
-    //     }
  
+    
     if (operator.getRawButton(7)) {
       if (operator.getRawButton(8)) {
         if (limitSwitchLeft.getProximity() < 800) {
@@ -447,13 +397,12 @@ public class Robot extends TimedRobot {
         }     
        }
     }
-
     if (operator.getRawButton(7)) {
       if (operator.getRawButton(8)) {
         if (limitSwitchRight.getProximity() < 800) {
           climberMotors.armMotorR.set(0);
         } else {
-          climberMotors.armMotorR.set(-.6);
+          climberMotors.armMotorR.set(-.8);
         }     
        }
     }

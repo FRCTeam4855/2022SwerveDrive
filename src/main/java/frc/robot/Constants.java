@@ -3,7 +3,7 @@ package frc.robot;
 public class Constants {
     //Constants ++++++++++++
     public static final double JOYSTK_DZONE = .17;                  // global deadzone for all controllers
-    public static final double LOW_GOAL_SPEED = 2500;               // velocity setpoint for flywheel launching into low goal
+    public static final double LOW_GOAL_SPEED = 2300;               // velocity setpoint for flywheel launching into low goal
     public static final double HIGH_GOAL_SPEED = 3550;              // velocity setpoint for flywheel launching into high goal at mid-field
     public static final double DRIVE_INIT_SPD = 0.75;               // multiplier
     public static final double DRIVE_SLOW_SPD = 0.35;               // multiplier
@@ -39,6 +39,4 @@ public class Constants {
     public static final int FLYWHEEL_TOGGLE = 1;
     public static final int INTAKEARM_TOGGLE = 2;
     
-
-
 }
